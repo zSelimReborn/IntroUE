@@ -4,6 +4,9 @@
 #include "DoorInteractionComponent.h"
 
 #include "GameFramework/Actor.h"
+#include "GameFramework/PlayerController.h"
+#include "Engine/TriggerBox.h"
+#include "Engine/World.h"
 
 // Sets default values for this component's properties
 UDoorInteractionComponent::UDoorInteractionComponent()
@@ -32,14 +35,49 @@ void UDoorInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CurrentRotationTime < TimeToRotate)
+	// if (CurrentRotationTime < TimeToRotate)
+	// {
+		if (OpenerTrigger && GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())
+		{
+			const APawn* Player = GetWorld()->GetFirstPlayerController()->GetPawn();
+			
+			if (Player && OpenerTrigger->IsOverlappingActor(Player) && IsPlayerLookingAtDoor(Player))
+			{
+				CurrentRotationTime += DeltaTime;
+			} else {
+				CurrentRotationTime = FMath::Max(0.f, CurrentRotationTime - DeltaTime);
+			}
+
+			// const float RotationAlpha = FMath::Clamp(CurrentRotationTime / TimeToRotate, 0.f, 1.f);
+			const float TimeRatio = FMath::Clamp(CurrentRotationTime / TimeToRotate, 0.f, 1.f);
+			const float RotationAlpha = OpenCurve.GetRichCurveConst()->Eval(TimeRatio);
+			const FRotator CurrentRotation = FMath::Lerp(StartRotation, FinalRotation, RotationAlpha);
+			GetOwner()->SetActorRotation(CurrentRotation);
+		}
+	
+	// }
+}
+
+bool UDoorInteractionComponent::IsPlayerLookingAtDoor(const APawn* Player)
+{
+	if (Player == nullptr)
 	{
-		CurrentRotationTime += DeltaTime;
-		UE_LOG(LogTemp, Error, TEXT("CurrentRotationTime: %.2f - DeltaTime: %.2f"), CurrentRotationTime, DeltaTime);
-		const float RotationAlpha = FMath::Clamp(CurrentRotationTime / TimeToRotate, 0.f, 1.f);
-		UE_LOG(LogTemp, Error, TEXT("Rotation Alpha: %.2f"), RotationAlpha);
-		const FRotator CurrentRotation = FMath::Lerp(StartRotation, FinalRotation, RotationAlpha);
-		GetOwner()->SetActorRotation(CurrentRotation);
+		return false;	
 	}
+	
+	FVector PlayerForward		= Player->GetActorForwardVector();
+	FVector DirectionToDoor		= GetOwner()->GetActorLocation() - Player->GetActorLocation();
+
+	PlayerForward.Normalize();
+	DirectionToDoor.Normalize();
+
+	// Get the angle between two vectors
+	const float CosineAngle = FVector::DotProduct(PlayerForward, DirectionToDoor);
+	const float AngleRadians = FMath::Acos(CosineAngle);
+	const float Angle = FMath::RadiansToDegrees(AngleRadians);
+
+	UE_LOG(LogTemp, Error, TEXT("Angle: %.2f"), Angle);
+	
+	return (Angle <= 45.f);
 }
 

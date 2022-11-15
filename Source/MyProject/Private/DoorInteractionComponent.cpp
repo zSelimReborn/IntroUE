@@ -35,27 +35,20 @@ void UDoorInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// if (CurrentRotationTime < TimeToRotate)
-	// {
-		if (OpenerTrigger && GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())
-		{
-			const APawn* Player = GetWorld()->GetFirstPlayerController()->GetPawn();
-			
-			if (Player && OpenerTrigger->IsOverlappingActor(Player) && IsPlayerLookingAtDoor(Player))
-			{
-				CurrentRotationTime += DeltaTime;
-			} else {
-				CurrentRotationTime = FMath::Max(0.f, CurrentRotationTime - DeltaTime);
-			}
+	PerformRotation(DeltaTime);
+}
 
-			// const float RotationAlpha = FMath::Clamp(CurrentRotationTime / TimeToRotate, 0.f, 1.f);
-			const float TimeRatio = FMath::Clamp(CurrentRotationTime / TimeToRotate, 0.f, 1.f);
-			const float RotationAlpha = OpenCurve.GetRichCurveConst()->Eval(TimeRatio);
-			const FRotator CurrentRotation = FMath::Lerp(StartRotation, FinalRotation, RotationAlpha);
-			GetOwner()->SetActorRotation(CurrentRotation);
-		}
-	
-	// }
+float UDoorInteractionComponent::GetAngleBetweenVectors(FVector A, FVector B)
+{
+	A.Normalize();
+	B.Normalize();
+
+	// Get the angle between two vectors
+	const float CosineAngle = FVector::DotProduct(A, B);
+	const float AngleRadians = FMath::Acos(CosineAngle);
+	const float Angle = FMath::RadiansToDegrees(AngleRadians);
+
+	return Angle;
 }
 
 bool UDoorInteractionComponent::IsPlayerLookingAtDoor(const APawn* Player)
@@ -64,20 +57,65 @@ bool UDoorInteractionComponent::IsPlayerLookingAtDoor(const APawn* Player)
 	{
 		return false;	
 	}
-	
-	FVector PlayerForward		= Player->GetActorForwardVector();
-	FVector DirectionToDoor		= GetOwner()->GetActorLocation() - Player->GetActorLocation();
 
-	PlayerForward.Normalize();
-	DirectionToDoor.Normalize();
+	const FVector PlayerForward		= Player->GetActorForwardVector();
+	const FVector DirectionToDoor	= GetOwner()->GetActorLocation() - Player->GetActorLocation();
 
-	// Get the angle between two vectors
-	const float CosineAngle = FVector::DotProduct(PlayerForward, DirectionToDoor);
-	const float AngleRadians = FMath::Acos(CosineAngle);
-	const float Angle = FMath::RadiansToDegrees(AngleRadians);
+	const float Angle = GetAngleBetweenVectors(PlayerForward, DirectionToDoor);	
+	return (Angle <= PlayerFOVDegrees);
+}
 
-	UE_LOG(LogTemp, Error, TEXT("Angle: %.2f"), Angle);
-	
-	return (Angle <= 45.f);
+void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
+{
+	if (OpenerTrigger && GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())
+	{
+		const APawn* Player = GetWorld()->GetFirstPlayerController()->GetPawn();
+
+		// const float RotationAlpha = FMath::Clamp(CurrentRotationTime / TimeToRotate, 0.f, 1.f);
+		const float TimeRatio = FMath::Clamp(CurrentRotationTime / TimeToRotate, 0.f, 1.f);
+		const float RotationAlpha = OpenCurve.GetRichCurveConst()->Eval(TimeRatio);
+		const FRotator CurrentRotation = FMath::Lerp(StartRotation, FinalRotation, RotationAlpha);
+
+		switch (DoorState)
+		{
+		case EDoorState::Closed:
+			if (Player && OpenerTrigger->IsOverlappingActor(Player) && IsPlayerLookingAtDoor(Player))
+			{
+				SetOpening();
+			}
+			break;
+		case EDoorState::Opened:
+			if (!OpenerTrigger->IsOverlappingActor(Player) || !IsPlayerLookingAtDoor(Player))
+			{
+				SetClosing();
+			}
+			break;
+		case EDoorState::Opening:
+			if (CurrentRotationTime < TimeToRotate)
+			{
+				CurrentRotationTime += DeltaTime;
+			}
+			else
+			{
+				SetOpened();
+			}
+			break;
+		case EDoorState::Closing:
+			if (CurrentRotationTime > 0.f)
+			{
+				CurrentRotationTime = FMath::Max(0.f, CurrentRotationTime - DeltaTime);
+			}
+			else
+			{
+				SetClosed();
+			}
+			break;
+		default:
+			UE_LOG(LogTemp, Error, TEXT("Door in an invalid state."));
+			break;
+		}
+		
+		GetOwner()->SetActorRotation(CurrentRotation);
+	}
 }
 

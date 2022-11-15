@@ -7,6 +7,17 @@
 #include "Curves/CurveFloat.h"
 #include "DoorInteractionComponent.generated.h"
 
+UENUM()
+enum class EDoorState : uint8
+{
+	Closed		UMETA(DisplayName="Closed"),
+	Opened		UMETA(DisplayName="Opened"),
+	Opening		UMETA(DisplayName="Opening"),
+	Closing		UMETA(DisplayName="Closing"),
+	
+	Max			UMETA(DisplayName="MAX")
+};
+
 class ATriggerBox;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -38,11 +49,33 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	FRuntimeFloatCurve OpenCurve;
+
+	UPROPERTY(EditAnywhere)
+	float PlayerFOVDegrees = 45.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EDoorState DoorState = EDoorState::Closed;
 	
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	FORCEINLINE EDoorState GetDoorState() const { return DoorState; }
+	FORCEINLINE bool IsOpened() const { return DoorState == EDoorState::Opened; }
+	FORCEINLINE bool IsClosed() const { return DoorState == EDoorState::Closed; }
+	FORCEINLINE bool IsOpening() const { return DoorState == EDoorState::Opening; }
+	FORCEINLINE bool IsClosing() const { return DoorState == EDoorState::Closing; }
+	FORCEINLINE bool IsRotating() const { return (!IsOpened() && !IsClosed()); }
+
 protected:
+	virtual float GetAngleBetweenVectors(FVector, FVector);
 	virtual bool IsPlayerLookingAtDoor(const APawn*);
+
+	virtual void PerformRotation(const float);
+
+private:
+	FORCEINLINE void SetOpened() { DoorState = EDoorState::Opened; }
+	FORCEINLINE void SetClosed() { DoorState = EDoorState::Closed; }
+	FORCEINLINE void SetOpening() { DoorState = EDoorState::Opening; }
+	FORCEINLINE void SetClosing() { DoorState = EDoorState::Closing; } 
 };

@@ -3,9 +3,10 @@
 
 #include "DoorInteractionComponent.h"
 
+#include "InteractableDoor.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
-#include "Engine/TriggerBox.h"
 #include "Engine/World.h"
 
 // Sets default values for this component's properties
@@ -23,10 +24,11 @@ UDoorInteractionComponent::UDoorInteractionComponent()
 void UDoorInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	OpenerTrigger = GetOwner()->FindComponentByClass<UBoxComponent>();
+	Player = (GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())? GetWorld()->GetFirstPlayerController()->GetPawn() : nullptr;
 
-	StartRotation = GetOwner()->GetActorRotation();
-	FinalRotation = StartRotation + DesiredRotation;
-	CurrentRotationTime = 0.f;
+	Door = Cast<AInteractableDoor>(GetOwner());
 }
 
 
@@ -51,30 +53,42 @@ float UDoorInteractionComponent::GetAngleBetweenVectors(FVector A, FVector B)
 	return Angle;
 }
 
-bool UDoorInteractionComponent::IsPlayerLookingAtDoor(const APawn* Player)
+bool UDoorInteractionComponent::IsPlayerLookingAtDoor(const APawn* Pawn)
 {
-	if (Player == nullptr)
+	if (Pawn == nullptr)
 	{
 		return false;	
 	}
 
-	const FVector PlayerForward		= Player->GetActorForwardVector();
-	const FVector DirectionToDoor	= GetOwner()->GetActorLocation() - Player->GetActorLocation();
+	const FVector PlayerForward		= Pawn->GetActorForwardVector();
+	const FVector DirectionToDoor	= GetOwner()->GetActorLocation() - Pawn->GetActorLocation();
 
 	const float Angle = GetAngleBetweenVectors(PlayerForward, DirectionToDoor);	
 	return (Angle <= PlayerFOVDegrees);
 }
 
+bool UDoorInteractionComponent::IsPlayerBehindDoor(const APawn* Pawn)
+{
+	if (Pawn == nullptr)
+	{
+		return false;	
+	}
+
+	const FVector DoorForward = GetOwner()->GetActorRightVector();
+	const FVector DirectionToPlayer = Pawn->GetActorLocation() - GetOwner()->GetActorLocation();
+
+	const float Angle = GetAngleBetweenVectors(DoorForward, DirectionToPlayer);
+	return (Angle > PlayerFOVDegrees);
+}
+
 void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
 {
-	if (OpenerTrigger && GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())
+	if (OpenerTrigger && Player)
 	{
-		const APawn* Player = GetWorld()->GetFirstPlayerController()->GetPawn();
-
 		// const float RotationAlpha = FMath::Clamp(CurrentRotationTime / TimeToRotate, 0.f, 1.f);
 		const float TimeRatio = FMath::Clamp(CurrentRotationTime / TimeToRotate, 0.f, 1.f);
 		const float RotationAlpha = OpenCurve.GetRichCurveConst()->Eval(TimeRatio);
-		const FRotator CurrentRotation = FMath::Lerp(StartRotation, FinalRotation, RotationAlpha);
+		const float CurrentRotation = FMath::Lerp(0.f, DesiredYawRotation, RotationAlpha);
 
 		switch (DoorState)
 		{
@@ -82,6 +96,14 @@ void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
 			if (Player && OpenerTrigger->IsOverlappingActor(Player) && IsPlayerLookingAtDoor(Player))
 			{
 				SetOpening();
+				if (IsPlayerBehindDoor(Player))
+				{
+					DesiredYawRotation = FMath::Min(-DesiredYawRotation, DesiredYawRotation);
+				}
+				else
+				{
+					DesiredYawRotation = FMath::Abs(DesiredYawRotation);
+				}
 			}
 			break;
 		case EDoorState::Opened:
@@ -114,8 +136,11 @@ void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
 			UE_LOG(LogTemp, Error, TEXT("Door in an invalid state."));
 			break;
 		}
-		
-		GetOwner()->SetActorRotation(CurrentRotation);
+
+		if (Door)
+		{
+			Door->RotateDoor(CurrentRotation);
+		}
 	}
 }
 

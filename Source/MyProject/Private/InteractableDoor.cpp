@@ -5,13 +5,25 @@
 
 #include "Components/StaticMeshComponent.h"
 #include "DoorInteractionComponent.h"
+#include "Components/BoxComponent.h"
 
 AInteractableDoor::AInteractableDoor()
 {
-	DoorMainComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMainMesh"));
-	DoorInteractionComponent = CreateDefaultSubobject<UDoorInteractionComponent>(TEXT("DoorInteractionComponent"));
+	DoorFrameComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorFrameMesh"));
+	SetRootComponent(DoorFrameComponent);
 
-	SetRootComponent(DoorMainComponent);
-	DoorMainComponent->SetupAttachment(GetRootComponent());
+	DoorMainComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMainMesh"));
+	DoorMainComponent->SetupAttachment(DoorFrameComponent);
+
+	OpenerBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("OpenerBoxComponent"));
+	OpenerBoxComponent->SetupAttachment(DoorFrameComponent);
+
+	DoorInteractionComponent = CreateDefaultSubobject<UDoorInteractionComponent>(TEXT("DoorInteractionComponent"));
+}
+
+void AInteractableDoor::RotateDoor(const float Degrees) const
+{
+	const FRotator YawRotation{0.f, Degrees, 0.f};
+	DoorMainComponent->SetRelativeRotation(YawRotation);
 }
 

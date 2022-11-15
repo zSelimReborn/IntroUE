@@ -18,7 +18,8 @@ enum class EDoorState : uint8
 	Max			UMETA(DisplayName="MAX")
 };
 
-class ATriggerBox;
+class UBoxComponent;
+class AInteractableDoor;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MYPROJECT_API UDoorInteractionComponent : public UActorComponent
@@ -34,18 +35,15 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
-	FRotator DesiredRotation = FRotator::ZeroRotator;
-
-	FRotator StartRotation = FRotator::ZeroRotator;
-	FRotator FinalRotation = FRotator::ZeroRotator;
+	float DesiredYawRotation = 0.f;
 
 	UPROPERTY(EditAnywhere)
 	float TimeToRotate = 1.f;
 
 	float CurrentRotationTime = 0.f;
 
-	UPROPERTY(EditAnywhere)
-	ATriggerBox* OpenerTrigger;
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* OpenerTrigger;
 
 	UPROPERTY(EditAnywhere)
 	FRuntimeFloatCurve OpenCurve;
@@ -55,6 +53,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EDoorState DoorState = EDoorState::Closed;
+
+	UPROPERTY()
+	APawn* Player = nullptr;
+
+	UPROPERTY()
+	AInteractableDoor* Door = nullptr;
 	
 public:	
 	// Called every frame
@@ -70,6 +74,7 @@ public:
 protected:
 	virtual float GetAngleBetweenVectors(FVector, FVector);
 	virtual bool IsPlayerLookingAtDoor(const APawn*);
+	virtual bool IsPlayerBehindDoor(const APawn*);
 
 	virtual void PerformRotation(const float);
 

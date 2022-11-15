@@ -9,6 +9,7 @@
 
 class UDoorInteractionComponent;
 class UStaticMeshComponent;
+class UBoxComponent;
 
 /**
  * 
@@ -20,9 +21,18 @@ class MYPROJECT_API AInteractableDoor : public AActor
 
 public:
 	AInteractableDoor();
+
+	void RotateDoor(const float Degrees) const;
+	
 protected:
 	UPROPERTY(EditAnywhere, NoClear)
 	UStaticMeshComponent* DoorMainComponent;
+
+	UPROPERTY(EditAnywhere, NoClear)
+	UStaticMeshComponent* DoorFrameComponent;
+
+	UPROPERTY(EditAnywhere, NoClear)
+	UBoxComponent* OpenerBoxComponent;
 	
 	UPROPERTY(EditAnywhere, NoClear)
 	UDoorInteractionComponent* DoorInteractionComponent;

@@ -54,10 +54,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EDoorState DoorState = EDoorState::Closed;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	APawn* Player = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	AInteractableDoor* Door = nullptr;
 	
 public:	

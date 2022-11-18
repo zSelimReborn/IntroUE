@@ -3,7 +3,9 @@
 
 #include "DoorInteractionComponent.h"
 
+#include "BaseCharacter.h"
 #include "InteractableDoor.h"
+#include "BaseKey.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
@@ -38,6 +40,17 @@ void UDoorInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	PerformRotation(DeltaTime);
+}
+
+bool UDoorInteractionComponent::CanOpenDoor() const
+{
+	// If no key configured, it's a door not locked
+	if (KeyToOpen == nullptr) { return true; }
+
+	const TObjectPtr<ABaseCharacter> PlayerCasted = Cast<ABaseCharacter>(Player);
+	if (PlayerCasted == nullptr) { return true; }
+
+	return PlayerCasted->HasKey(KeyToOpen);
 }
 
 float UDoorInteractionComponent::GetAngleBetweenVectors(FVector A, FVector B)
@@ -93,7 +106,7 @@ void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
 		switch (DoorState)
 		{
 		case EDoorState::Closed:
-			if (Player && OpenerTrigger->IsOverlappingActor(Player) && IsPlayerLookingAtDoor(Player))
+			if (Player && OpenerTrigger->IsOverlappingActor(Player) && IsPlayerLookingAtDoor(Player) && CanOpenDoor())
 			{
 				SetOpening();
 				if (IsPlayerBehindDoor(Player))

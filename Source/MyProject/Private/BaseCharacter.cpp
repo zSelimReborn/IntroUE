@@ -27,7 +27,8 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	KeyInventory.Empty();
 }
 
 // Called every frame
@@ -46,6 +47,16 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::LookUp);
 	PlayerInputComponent->BindAxis("Turn", this, &ABaseCharacter::Turn);
+}
+
+void ABaseCharacter::AddKeyToInventory(const TObjectPtr<ABaseKey> NewKey)
+{
+	KeyInventory.Add(NewKey);
+}
+
+bool ABaseCharacter::HasKey(const TObjectPtr<ABaseKey> KeyToSearch)
+{
+	return (KeyInventory.Find(KeyToSearch) != INDEX_NONE);
 }
 
 void ABaseCharacter::MoveForward(float AxisValue)

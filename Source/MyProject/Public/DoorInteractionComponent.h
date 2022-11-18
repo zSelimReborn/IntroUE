@@ -20,6 +20,7 @@ enum class EDoorState : uint8
 
 class UBoxComponent;
 class AInteractableDoor;
+class ABaseKey;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MYPROJECT_API UDoorInteractionComponent : public UActorComponent
@@ -59,6 +60,9 @@ protected:
 
 	UPROPERTY(Transient)
 	AInteractableDoor* Door = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<ABaseKey> KeyToOpen = nullptr;
 	
 public:	
 	// Called every frame
@@ -70,6 +74,8 @@ public:
 	FORCEINLINE bool IsOpening() const { return DoorState == EDoorState::Opening; }
 	FORCEINLINE bool IsClosing() const { return DoorState == EDoorState::Closing; }
 	FORCEINLINE bool IsRotating() const { return (!IsOpened() && !IsClosed()); }
+
+	bool CanOpenDoor() const;
 
 protected:
 	virtual float GetAngleBetweenVectors(FVector, FVector);

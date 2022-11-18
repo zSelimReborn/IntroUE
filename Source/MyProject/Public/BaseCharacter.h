@@ -8,6 +8,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class ABaseKey;
 
 UCLASS()
 class MYPROJECT_API ABaseCharacter : public ACharacter
@@ -26,12 +27,18 @@ protected:
 	void LookUp(float AxisValue);
 	void Turn(float AxisValue);
 
+	UPROPERTY(Transient, VisibleAnywhere)
+	TArray<TObjectPtr<ABaseKey>> KeyInventory;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void AddKeyToInventory(const TObjectPtr<ABaseKey>);
+	virtual bool HasKey(const TObjectPtr<ABaseKey>);
 
 private:
 	UPROPERTY(EditAnywhere, Category=Camera)

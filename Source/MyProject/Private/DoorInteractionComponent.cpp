@@ -144,6 +144,7 @@ void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
 			else
 			{
 				SetOpened();
+				OpenedEvent.Broadcast();
 			}
 			break;
 		case EDoorState::Closing:
@@ -154,6 +155,7 @@ void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
 			else
 			{
 				SetClosed();
+				ClosedEvent.Broadcast();
 			}
 			break;
 		default:

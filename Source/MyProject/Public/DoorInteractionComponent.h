@@ -31,6 +31,16 @@ public:
 	// Sets default values for this component's properties
 	UDoorInteractionComponent();
 
+	// Setup for events
+	DECLARE_EVENT(FDoorInteractionComponent, FOpened);
+	DECLARE_EVENT(FDoorInteractionComponent, FClosed);
+	
+	FOpened& OnOpened() { return OpenedEvent; }
+	FOpened OpenedEvent;
+
+	FClosed& OnClosed() { return ClosedEvent; }
+	FClosed ClosedEvent;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

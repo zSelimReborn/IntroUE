@@ -10,6 +10,16 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
+#include "DrawDebugHelpers.h"
+
+constexpr float FLT_METERS(const float Meters) { return Meters * 100.f; }
+
+static TAutoConsoleVariable<bool> CVarToggleDebugDoor(
+	TEXT("MyProject.DoorInteractionComponent.Debug"),
+	false,
+	TEXT("Toggle debugging for door interaction component."),
+	ECVF_Default
+);
 
 // Sets default values for this component's properties
 UDoorInteractionComponent::UDoorInteractionComponent()
@@ -18,7 +28,7 @@ UDoorInteractionComponent::UDoorInteractionComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	CVarToggleDebugDoor.AsVariable()->SetOnChangedCallback(FConsoleVariableDelegate::CreateStatic(&UDoorInteractionComponent::OnDebugToggled));
 }
 
 
@@ -40,6 +50,7 @@ void UDoorInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	PerformRotation(DeltaTime);
+	DebugDraw();
 }
 
 bool UDoorInteractionComponent::CanOpenDoor() const
@@ -154,6 +165,22 @@ void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
 		{
 			Door->RotateDoor(CurrentRotation);
 		}
+	}
+}
+
+void UDoorInteractionComponent::OnDebugToggled(IConsoleVariable* Variable)
+{
+	UE_LOG(LogTemp, Display, TEXT("Change: %d"), Variable->GetBool());
+}
+
+void UDoorInteractionComponent::DebugDraw()
+{
+	if (CVarToggleDebugDoor->GetBool())
+	{
+		const FVector Offset{FLT_METERS(0.75f), 0.f, FLT_METERS(2.5f)};
+		const FString StateAsString = TEXT("DoorState: ") + UEnum::GetDisplayValueAsText(DoorState).ToString();
+
+		DrawDebugString(GetWorld(),Offset, StateAsString, GetOwner(), FColor::Red, 0.f);
 	}
 }
 

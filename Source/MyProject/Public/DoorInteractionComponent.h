@@ -84,6 +84,9 @@ protected:
 
 	virtual void PerformRotation(const float);
 
+	static void OnDebugToggled(IConsoleVariable*);
+	void DebugDraw();
+
 private:
 	FORCEINLINE void SetOpened() { DoorState = EDoorState::Opened; }
 	FORCEINLINE void SetClosed() { DoorState = EDoorState::Closed; }

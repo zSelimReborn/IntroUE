@@ -3,6 +3,7 @@
 
 #include "EditorGameMode.h"
 
+#include "ObjectiveWorldSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -10,14 +11,10 @@ void AEditorGameMode::StartPlay()
 {
 	Super::StartPlay();
 
-	if (ObjectiveWidgetClass)
+	UObjectiveWorldSubsystem* ObjectiveWorldSubsystem = GetWorld()->GetSubsystem<UObjectiveWorldSubsystem>();
+	if (ObjectiveWorldSubsystem)
 	{
-		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-		ObjectiveWidget = CreateWidget<UUserWidget>(PlayerController, ObjectiveWidgetClass);
-	}
-	
-	if(ObjectiveWidget)
-	{
-		ObjectiveWidget->AddToViewport();
+		ObjectiveWorldSubsystem->CreateObjectiveWidget(ObjectiveWidgetClass);
+		ObjectiveWorldSubsystem->DisplayObjectiveWidget();
 	}
 }

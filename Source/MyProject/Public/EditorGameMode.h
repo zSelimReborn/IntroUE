@@ -17,12 +17,9 @@ class MYPROJECT_API AEditorGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	void StartPlay() override;
+	virtual void StartPlay() override;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UUserWidget> ObjectiveWidgetClass;
-
-	UPROPERTY(Transient)
-	TObjectPtr<UUserWidget> ObjectiveWidget = nullptr;
 };

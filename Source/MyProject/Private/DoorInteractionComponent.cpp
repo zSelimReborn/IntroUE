@@ -11,6 +11,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "ObjectiveWorldSubsystem.h"
 
 constexpr float FLT_METERS(const float Meters) { return Meters * 100.f; }
 
@@ -41,6 +42,13 @@ void UDoorInteractionComponent::BeginPlay()
 	Player = (GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())? GetWorld()->GetFirstPlayerController()->GetPawn() : nullptr;
 
 	Door = Cast<AInteractableDoor>(GetOwner());
+
+	// Setup ObjectiveWorldSubsystem as listener
+	UObjectiveWorldSubsystem* ObjectiveWorldSubsystem = GetWorld()->GetSubsystem<UObjectiveWorldSubsystem>();
+	if (ObjectiveWorldSubsystem)
+	{
+		OpenedEvent.AddUObject(ObjectiveWorldSubsystem, &UObjectiveWorldSubsystem::OnObjectiveCompleted);
+	}
 }
 
 

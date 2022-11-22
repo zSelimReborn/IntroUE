@@ -66,3 +66,12 @@ void AInteractableDoor::OnOpenDoor()
 	SetObjectiveCompleted();
 }
 
+FVector AInteractableDoor::GetMeshCenter()
+{
+	FVector Origin;
+	FVector BoxExtent;
+
+	GetActorBounds(true, Origin, BoxExtent, false);
+	return Origin;
+}
+

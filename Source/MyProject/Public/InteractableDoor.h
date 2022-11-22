@@ -33,6 +33,8 @@ public:
 	bool IsObjectiveInactive() const;
 
 	void OnOpenDoor();
+
+	FVector GetMeshCenter();
 	
 protected:
 	UPROPERTY(EditAnywhere, NoClear)

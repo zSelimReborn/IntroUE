@@ -80,27 +80,28 @@ float UDoorInteractionComponent::GetAngleBetweenVectors(FVector A, FVector B)
 
 bool UDoorInteractionComponent::IsPlayerLookingAtDoor(const APawn* Pawn)
 {
-	if (Pawn == nullptr)
+	if (Pawn == nullptr || Door == nullptr)
 	{
 		return false;	
 	}
 
+	const FVector DoorCenter		= Door->GetMeshCenter();
 	const FVector PlayerForward		= Pawn->GetActorForwardVector();
-	const FVector DirectionToDoor	= GetOwner()->GetActorLocation() - Pawn->GetActorLocation();
-
-	const float Angle = GetAngleBetweenVectors(PlayerForward, DirectionToDoor);	
+	const FVector DirectionToDoor	= DoorCenter - Pawn->GetActorLocation();
+	
+	const float Angle = GetAngleBetweenVectors(PlayerForward, DirectionToDoor);
 	return (Angle <= PlayerFOVDegrees);
 }
 
 bool UDoorInteractionComponent::IsPlayerBehindDoor(const APawn* Pawn)
 {
-	if (Pawn == nullptr)
+	if (Pawn == nullptr || Door == nullptr)
 	{
 		return false;	
 	}
 
 	const FVector DoorForward = GetOwner()->GetActorRightVector();
-	const FVector DirectionToPlayer = Pawn->GetActorLocation() - GetOwner()->GetActorLocation();
+	const FVector DirectionToPlayer = Pawn->GetActorLocation() - Door->GetMeshCenter();
 
 	const float Angle = GetAngleBetweenVectors(DoorForward, DirectionToPlayer);
 	return (Angle > PlayerFOVDegrees);
@@ -132,7 +133,7 @@ void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
 			}
 			break;
 		case EDoorState::Opened:
-			if (!OpenerTrigger->IsOverlappingActor(Player) || !IsPlayerLookingAtDoor(Player))
+			if (!OpenerTrigger->IsOverlappingActor(Player))
 			{
 				SetClosing();
 			}

@@ -32,8 +32,12 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USphereComponent> ColliderComponent = nullptr;
 
+	UPROPERTY(EditAnywhere)
+	FString KeyName;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FORCEINLINE FString GetKeyName() const { return KeyName; }
 };

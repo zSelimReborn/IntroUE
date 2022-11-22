@@ -28,7 +28,7 @@ protected:
 	void Turn(float AxisValue);
 
 	UPROPERTY(Transient, VisibleAnywhere)
-	TArray<TObjectPtr<ABaseKey>> KeyInventory;
+	TArray<FString> KeyInventory;
 
 public:	
 	// Called every frame
@@ -37,8 +37,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void AddKeyToInventory(const TObjectPtr<ABaseKey>);
-	virtual bool HasKey(const TObjectPtr<ABaseKey>);
+	virtual void AddKeyToInventory(const FString&);
+	virtual bool HasKey(const FString&);
 
 private:
 	UPROPERTY(EditAnywhere, Category=Camera)

@@ -72,7 +72,7 @@ protected:
 	AInteractableDoor* Door = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<ABaseKey> KeyToOpen = nullptr;
+	FString KeyToOpen;
 	
 public:	
 	// Called every frame

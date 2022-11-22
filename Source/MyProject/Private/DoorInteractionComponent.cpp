@@ -57,7 +57,7 @@ void UDoorInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 bool UDoorInteractionComponent::CanOpenDoor() const
 {
 	// If no key configured, it's a door not locked
-	if (KeyToOpen == nullptr) { return true; }
+	if (KeyToOpen.IsEmpty()) { return true; }
 
 	const TObjectPtr<ABaseCharacter> PlayerCasted = Cast<ABaseCharacter>(Player);
 	if (PlayerCasted == nullptr) { return true; }

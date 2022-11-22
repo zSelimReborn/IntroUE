@@ -5,7 +5,7 @@
 
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
+#include "BaseKey.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -49,14 +49,14 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("Turn", this, &ABaseCharacter::Turn);
 }
 
-void ABaseCharacter::AddKeyToInventory(const TObjectPtr<ABaseKey> NewKey)
+void ABaseCharacter::AddKeyToInventory(const FString& KeyName)
 {
-	KeyInventory.Add(NewKey);
+	KeyInventory.Add(KeyName);
 }
 
-bool ABaseCharacter::HasKey(const TObjectPtr<ABaseKey> KeyToSearch)
+bool ABaseCharacter::HasKey(const FString& KeyName)
 {
-	return (KeyInventory.Find(KeyToSearch) != INDEX_NONE);
+	return (KeyInventory.Find(KeyName) != INDEX_NONE);
 }
 
 void ABaseCharacter::MoveForward(float AxisValue)

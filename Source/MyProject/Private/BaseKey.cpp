@@ -35,7 +35,7 @@ void ABaseKey::OnColliderOverlap(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	// It's ABaseCharacter
 	if (PlayerCasted != nullptr)
 	{
-		PlayerCasted->AddKeyToInventory(this);
+		PlayerCasted->AddKeyToInventory(GetKeyName());
 		Destroy();
 	}
 }

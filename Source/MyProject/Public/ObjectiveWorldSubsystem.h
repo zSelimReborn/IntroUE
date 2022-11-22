@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "ObjectiveComponent.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "ObjectiveWorldSubsystem.generated.h"
 
@@ -19,7 +21,24 @@ public:
 	void DisplayObjectiveWidget();
 
 	void OnObjectiveCompleted();
+
+	UFUNCTION(BlueprintCallable)
+	void AddObjective(UObjectiveComponent* Objective);
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveObjective(UObjectiveComponent* Objective);
+
+	void OnObjectiveStateChanged(UObjectiveComponent*, EObjectiveState);
+
+	UFUNCTION(BlueprintCallable)
+	FString GetCurrentObjectiveDescription();
+
+	UObjectiveComponent* GetActiveObjective();
+	
 protected:
 	UPROPERTY(Transient)
 	UUserWidget* ObjectiveWidget;
+
+	UPROPERTY(Transient)
+	TArray<UObjectiveComponent*> Objectives;
 };

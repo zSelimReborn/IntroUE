@@ -10,6 +10,7 @@
 class UDoorInteractionComponent;
 class UStaticMeshComponent;
 class UBoxComponent;
+class UObjectiveComponent;
 
 /**
  * 
@@ -23,6 +24,15 @@ public:
 	AInteractableDoor();
 
 	void RotateDoor(const float Degrees) const;
+	void SetObjectiveCompleted();
+	void SetObjectiveActive();
+	void SetObjectiveInactive();
+
+	bool IsObjectiveCompleted() const;
+	bool IsObjectiveActive() const;
+	bool IsObjectiveInactive() const;
+
+	void OnOpenDoor();
 	
 protected:
 	UPROPERTY(EditAnywhere, NoClear)
@@ -36,4 +46,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, NoClear)
 	UDoorInteractionComponent* DoorInteractionComponent;
+
+	UPROPERTY(EditAnywhere, NoClear)
+	TObjectPtr<UObjectiveComponent> ObjectiveComponent;
 };

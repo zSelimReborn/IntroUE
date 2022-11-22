@@ -42,13 +42,6 @@ void UDoorInteractionComponent::BeginPlay()
 	Player = (GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())? GetWorld()->GetFirstPlayerController()->GetPawn() : nullptr;
 
 	Door = Cast<AInteractableDoor>(GetOwner());
-
-	// Setup ObjectiveWorldSubsystem as listener
-	UObjectiveWorldSubsystem* ObjectiveWorldSubsystem = GetWorld()->GetSubsystem<UObjectiveWorldSubsystem>();
-	if (ObjectiveWorldSubsystem)
-	{
-		OpenedEvent.AddUObject(ObjectiveWorldSubsystem, &UObjectiveWorldSubsystem::OnObjectiveCompleted);
-	}
 }
 
 

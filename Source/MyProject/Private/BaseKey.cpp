@@ -30,12 +30,11 @@ void ABaseKey::BeginPlay()
 void ABaseKey::OnColliderOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Error, TEXT("OnColliderOverlap called."));
 	ABaseCharacter* PlayerCasted = Cast<ABaseCharacter>(OtherActor);
 	// It's ABaseCharacter
 	if (PlayerCasted != nullptr)
 	{
-		PlayerCasted->AddKeyToInventory(GetKeyName());
+		PlayerCasted->AddKeyToInventory(GetNameSafe(this));
 		Destroy();
 	}
 }

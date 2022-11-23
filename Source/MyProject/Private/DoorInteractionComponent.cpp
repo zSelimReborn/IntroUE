@@ -42,6 +42,8 @@ void UDoorInteractionComponent::BeginPlay()
 	Player = (GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())? GetWorld()->GetFirstPlayerController()->GetPawn() : nullptr;
 
 	Door = Cast<AInteractableDoor>(GetOwner());
+
+	KeyToOpenName = GetNameSafe(KeyToOpen);
 }
 
 
@@ -57,12 +59,12 @@ void UDoorInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 bool UDoorInteractionComponent::CanOpenDoor() const
 {
 	// If no key configured, it's a door not locked
-	if (KeyToOpen.IsEmpty()) { return true; }
+	if (KeyToOpenName.IsEmpty()) { return true; }
 
 	const TObjectPtr<ABaseCharacter> PlayerCasted = Cast<ABaseCharacter>(Player);
 	if (PlayerCasted == nullptr) { return true; }
 
-	return PlayerCasted->HasKey(KeyToOpen);
+	return PlayerCasted->HasKey(KeyToOpenName);
 }
 
 float UDoorInteractionComponent::GetAngleBetweenVectors(FVector A, FVector B)
@@ -177,14 +179,28 @@ void UDoorInteractionComponent::OnDebugToggled(IConsoleVariable* Variable)
 	UE_LOG(LogTemp, Display, TEXT("Change: %d"), Variable->GetBool());
 }
 
-void UDoorInteractionComponent::DebugDraw()
+void UDoorInteractionComponent::DebugDraw() const
 {
 	if (CVarToggleDebugDoor->GetBool())
 	{
-		const FVector Offset{FLT_METERS(0.75f), 0.f, FLT_METERS(2.5f)};
+		const FVector StateOffset{FLT_METERS(0.75f), 0.f, FLT_METERS(2.5f)};
 		const FString StateAsString = TEXT("DoorState: ") + UEnum::GetDisplayValueAsText(DoorState).ToString();
 
-		DrawDebugString(GetWorld(),Offset, StateAsString, GetOwner(), FColor::Red, 0.f);
+		const FVector KeyOffset{FLT_METERS(-1.75f), 0.f, FLT_METERS(2.5f)};
+		const FString KeyAsString = TEXT("Key Configured: ") + KeyToOpenName;
+
+		DrawDebugString(GetWorld(), StateOffset, StateAsString, GetOwner(), FColor::Red, 0.f);
+		DrawDebugString(GetWorld(), KeyOffset, KeyAsString, GetOwner(), FColor::Red, 0.f);
+
+		if (Player && Door)
+		{
+			if (OpenerTrigger->IsOverlappingActor(Player))
+			{
+				const FVector DoorCenter = Door->GetMeshCenter();
+				DrawDebugDirectionalArrow(GetWorld(), Player->GetActorLocation(), DoorCenter, 5.f , FColor::Red);
+				DrawDebugDirectionalArrow(GetWorld(), Player->GetActorLocation(), GetOwner()->GetActorLocation(), 5.f , FColor::Black);
+			}
+		}
 	}
 }
 

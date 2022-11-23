@@ -34,7 +34,7 @@ public:
 
 	void OnOpenDoor();
 
-	FVector GetMeshCenter();
+	FVector GetMeshCenter() const;
 	
 protected:
 	UPROPERTY(EditAnywhere, NoClear)

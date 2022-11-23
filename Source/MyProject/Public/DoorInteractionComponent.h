@@ -71,8 +71,11 @@ protected:
 	UPROPERTY(Transient)
 	AInteractableDoor* Door = nullptr;
 
+	UPROPERTY(Transient)
+	FString KeyToOpenName;
+
 	UPROPERTY(EditAnywhere)
-	FString KeyToOpen;
+	TObjectPtr<ABaseKey> KeyToOpen;
 	
 public:	
 	// Called every frame
@@ -95,7 +98,7 @@ protected:
 	virtual void PerformRotation(const float);
 
 	static void OnDebugToggled(IConsoleVariable*);
-	void DebugDraw();
+	void DebugDraw() const;
 
 private:
 	FORCEINLINE void SetOpened() { DoorState = EDoorState::Opened; }

@@ -18,6 +18,13 @@ enum class EDoorState : uint8
 	Max			UMETA(DisplayName="MAX")
 };
 
+UENUM()
+enum class EDoorTypeForward
+{
+	Forward UMETA(DisplayName="Forward Vector"),
+	Right UMETA(DisplayName="Right Vector")
+};
+
 class UBoxComponent;
 class AInteractableDoor;
 class ABaseKey;
@@ -65,6 +72,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EDoorState DoorState = EDoorState::Closed;
 
+	UPROPERTY(EditAnywhere)
+	EDoorTypeForward TypeForward = EDoorTypeForward::Forward;
+
+	UPROPERTY(EditAnywhere)
+	float DoorSize = 100.f;
+
 	UPROPERTY(Transient)
 	APawn* Player = nullptr;
 
@@ -88,7 +101,10 @@ public:
 	FORCEINLINE bool IsClosing() const { return DoorState == EDoorState::Closing; }
 	FORCEINLINE bool IsRotating() const { return (!IsOpened() && !IsClosed()); }
 
+	FVector GetActorForwardVector() const;
+
 	bool CanOpenDoor() const;
+	bool IsDoorBlocked() const;
 
 protected:
 	virtual float GetAngleBetweenVectors(FVector, FVector);

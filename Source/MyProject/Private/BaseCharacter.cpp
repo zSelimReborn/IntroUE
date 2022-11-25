@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "BaseKey.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -57,6 +58,16 @@ void ABaseCharacter::AddKeyToInventory(const FString& KeyName)
 bool ABaseCharacter::HasKey(const FString& KeyName)
 {
 	return (KeyInventory.Find(KeyName) != INDEX_NONE);
+}
+
+float ABaseCharacter::GetCapsuleRadius() const
+{
+	return GetCapsuleComponent()->GetScaledCapsuleRadius();
+}
+
+float ABaseCharacter::GetCapsuleHalfHeight() const
+{
+	return GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 }
 
 void ABaseCharacter::MoveForward(float AxisValue)

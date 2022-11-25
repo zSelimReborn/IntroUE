@@ -40,6 +40,9 @@ public:
 	virtual void AddKeyToInventory(const FString&);
 	virtual bool HasKey(const FString&);
 
+	float GetCapsuleRadius() const;
+	float GetCapsuleHalfHeight() const;
+
 private:
 	UPROPERTY(EditAnywhere, Category=Camera)
 	USpringArmComponent* CameraBoom;

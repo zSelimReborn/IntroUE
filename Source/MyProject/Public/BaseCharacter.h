@@ -43,10 +43,15 @@ public:
 	float GetCapsuleRadius() const;
 	float GetCapsuleHalfHeight() const;
 
+	DECLARE_EVENT_OneParam(FBaseCharacter, FOnAddInventory, const FString&);
+	FOnAddInventory& OnAddInventory() { return OnAddInventoryEvent; }
+
 private:
 	UPROPERTY(EditAnywhere, Category=Camera)
 	USpringArmComponent* CameraBoom;
 
 	UPROPERTY(EditAnywhere, Category=Camera)
 	UCameraComponent* FollowCamera;
+
+	FOnAddInventory OnAddInventoryEvent;
 };

@@ -53,6 +53,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void ABaseCharacter::AddKeyToInventory(const FString& KeyName)
 {
 	KeyInventory.Add(KeyName);
+	OnAddInventoryEvent.Broadcast(KeyName);
 }
 
 bool ABaseCharacter::HasKey(const FString& KeyName)

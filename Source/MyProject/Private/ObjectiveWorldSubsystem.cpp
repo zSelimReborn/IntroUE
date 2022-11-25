@@ -25,6 +25,7 @@ void UObjectiveWorldSubsystem::DisplayObjectiveWidget()
 void UObjectiveWorldSubsystem::OnObjectiveCompleted()
 {
 	DisplayObjectiveWidget();
+	CurrentObjectiveIndex = CurrentObjectiveIndex + 1;
 }
 
 void UObjectiveWorldSubsystem::AddObjective(UObjectiveComponent* Objective)
@@ -50,11 +51,12 @@ void UObjectiveWorldSubsystem::OnObjectiveStateChanged(UObjectiveComponent* Obje
 
 FString UObjectiveWorldSubsystem::GetCurrentObjectiveDescription()
 {
-	const UObjectiveComponent* ActiveObjective = GetActiveObjective();
+	const UObjectiveComponent* ActiveObjective = GetCurrentObjective();
 	FString ObjectiveAsString = (ActiveObjective)? ActiveObjective->GetDescription() + " New!" : "";
-	for (const UObjectiveComponent* Objective : Objectives)
+	for (size_t Index = 0; Index < CurrentObjectiveIndex; Index++)
 	{
-		if (Objective->IsObjectiveCompleted())
+		const UObjectiveComponent* Objective = Objectives[Index];
+		if (Objective && Objective->IsObjectiveCompleted())
 		{
 			ObjectiveAsString += "\n ";
 			ObjectiveAsString += Objective->GetDescription();
@@ -65,14 +67,11 @@ FString UObjectiveWorldSubsystem::GetCurrentObjectiveDescription()
 	return (!ObjectiveAsString.IsEmpty())? ObjectiveAsString : TEXT("N/A");
 }
 
-UObjectiveComponent* UObjectiveWorldSubsystem::GetActiveObjective()
+UObjectiveComponent* UObjectiveWorldSubsystem::GetCurrentObjective()
 {
-	for (UObjectiveComponent* Objective : Objectives)
+	if (Objectives.IsValidIndex(CurrentObjectiveIndex))
 	{
-		if (Objective->IsObjectiveActive())
-		{
-			return Objective;
-		}
+		return Objectives[CurrentObjectiveIndex];
 	}
 
 	return nullptr;

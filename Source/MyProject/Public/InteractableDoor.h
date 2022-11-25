@@ -11,6 +11,7 @@ class UDoorInteractionComponent;
 class UStaticMeshComponent;
 class UBoxComponent;
 class UObjectiveComponent;
+class ABaseCharacter;
 
 /**
  * 
@@ -22,19 +23,33 @@ class MYPROJECT_API AInteractableDoor : public AActor
 
 public:
 	AInteractableDoor();
+	virtual void BeginPlay() override;
 
 	void RotateDoor(const float Degrees) const;
-	void SetObjectiveCompleted();
-	void SetObjectiveActive();
-	void SetObjectiveInactive();
+	
+	void SetOpenDoorObjectiveCompleted() const;
+	void SetOpenDoorObjectiveActive() const;
+	void SetOpenDoorObjectiveInactive() const;
 
-	bool IsObjectiveCompleted() const;
-	bool IsObjectiveActive() const;
-	bool IsObjectiveInactive() const;
+	void SetPickupKeyObjectiveCompleted() const;
+	void SetPickupKeyObjectiveActive() const;
+	void SetPickupKeyObjectiveInactive() const;
 
-	void OnOpenDoor();
+	bool IsOpenDoorObjectiveCompleted() const;
+	bool IsOpenDoorObjectiveActive() const;
+	bool IsOpenDoorObjectiveInactive() const;
+
+	bool IsPickupKeyObjectiveCompleted() const;
+	bool IsPickupKeyObjectiveActive() const;
+	bool IsPickupKeyObjectiveInactive() const;
+
+	void OnOpenDoor() const;
 
 	FVector GetMeshCenter() const;
+
+protected:
+	ABaseCharacter* GetPlayer();
+	void OnPlayerAddInventory(const FString&) const;
 	
 protected:
 	UPROPERTY(EditAnywhere, NoClear)
@@ -50,5 +65,8 @@ protected:
 	UDoorInteractionComponent* DoorInteractionComponent;
 
 	UPROPERTY(EditAnywhere, NoClear)
-	TObjectPtr<UObjectiveComponent> ObjectiveComponent;
+	TObjectPtr<UObjectiveComponent> PickupKeyObjective;
+	
+	UPROPERTY(EditAnywhere, NoClear)
+	TObjectPtr<UObjectiveComponent> OpenDoorObjective;
 };

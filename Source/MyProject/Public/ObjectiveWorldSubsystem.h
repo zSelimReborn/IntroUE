@@ -33,7 +33,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetCurrentObjectiveDescription();
 
-	UObjectiveComponent* GetActiveObjective();
+	UObjectiveComponent* GetCurrentObjective();
 	
 protected:
 	UPROPERTY(Transient)
@@ -41,4 +41,7 @@ protected:
 
 	UPROPERTY(Transient)
 	TArray<UObjectiveComponent*> Objectives;
+
+	UPROPERTY(VisibleAnywhere)
+	int CurrentObjectiveIndex = 0;
 };

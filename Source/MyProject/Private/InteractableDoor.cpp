@@ -3,6 +3,7 @@
 
 #include "InteractableDoor.h"
 
+#include "BaseCharacter.h"
 #include "Components/StaticMeshComponent.h"
 #include "DoorInteractionComponent.h"
 #include "ObjectiveComponent.h"
@@ -20,9 +21,20 @@ AInteractableDoor::AInteractableDoor()
 	OpenerBoxComponent->SetupAttachment(DoorFrameComponent);
 
 	DoorInteractionComponent = CreateDefaultSubobject<UDoorInteractionComponent>(TEXT("DoorInteractionComponent"));
-	ObjectiveComponent = CreateDefaultSubobject<UObjectiveComponent>(TEXT("ObjectiveComponent"));
+	PickupKeyObjective = CreateDefaultSubobject<UObjectiveComponent>(TEXT("PickupKeyObjective"));
+	OpenDoorObjective = CreateDefaultSubobject<UObjectiveComponent>(TEXT("OpenDoorObjective"));
 
 	DoorInteractionComponent->OnOpened().AddUObject(this, &AInteractableDoor::OnOpenDoor);
+}
+
+void AInteractableDoor::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (ABaseCharacter* Player = GetPlayer())
+	{
+		Player->OnAddInventory().AddUObject(this, &AInteractableDoor::OnPlayerAddInventory);
+	}
 }
 
 void AInteractableDoor::RotateDoor(const float Degrees) const
@@ -31,39 +43,69 @@ void AInteractableDoor::RotateDoor(const float Degrees) const
 	DoorMainComponent->SetRelativeRotation(YawRotation);
 }
 
-void AInteractableDoor::SetObjectiveCompleted()
+void AInteractableDoor::SetOpenDoorObjectiveCompleted() const
 {
-	ObjectiveComponent->SetObjectiveCompleted();
+	OpenDoorObjective->SetObjectiveCompleted();
 }
 
-void AInteractableDoor::SetObjectiveActive()
+void AInteractableDoor::SetOpenDoorObjectiveActive() const
 {
-	ObjectiveComponent->SetObjectiveActive();
+	OpenDoorObjective->SetObjectiveActive();
 }
 
-void AInteractableDoor::SetObjectiveInactive()
+void AInteractableDoor::SetOpenDoorObjectiveInactive() const
 {
-	ObjectiveComponent->SetObjectiveInactive();
+	OpenDoorObjective->SetObjectiveInactive();
 }
 
-bool AInteractableDoor::IsObjectiveCompleted() const
+void AInteractableDoor::SetPickupKeyObjectiveCompleted() const
 {
-	return ObjectiveComponent->IsObjectiveCompleted();
+	PickupKeyObjective->SetObjectiveCompleted();
 }
 
-bool AInteractableDoor::IsObjectiveActive() const
+void AInteractableDoor::SetPickupKeyObjectiveActive() const
 {
-	return ObjectiveComponent->IsObjectiveActive();
+	PickupKeyObjective->SetObjectiveActive();
 }
 
-bool AInteractableDoor::IsObjectiveInactive() const
+void AInteractableDoor::SetPickupKeyObjectiveInactive() const
 {
-	return ObjectiveComponent->IsObjectiveInactive();
+	PickupKeyObjective->SetObjectiveInactive();
 }
 
-void AInteractableDoor::OnOpenDoor()
+bool AInteractableDoor::IsOpenDoorObjectiveCompleted() const
 {
-	SetObjectiveCompleted();
+	return OpenDoorObjective->IsObjectiveCompleted();
+}
+
+bool AInteractableDoor::IsOpenDoorObjectiveActive() const
+{
+	return OpenDoorObjective->IsObjectiveActive();
+}
+
+bool AInteractableDoor::IsOpenDoorObjectiveInactive() const
+{
+	return OpenDoorObjective->IsObjectiveInactive();
+}
+
+bool AInteractableDoor::IsPickupKeyObjectiveCompleted() const
+{
+	return PickupKeyObjective->IsObjectiveCompleted();
+}
+
+bool AInteractableDoor::IsPickupKeyObjectiveActive() const
+{
+	return PickupKeyObjective->IsObjectiveActive();
+}
+
+bool AInteractableDoor::IsPickupKeyObjectiveInactive() const
+{
+	return PickupKeyObjective->IsObjectiveInactive();
+}
+
+void AInteractableDoor::OnOpenDoor() const
+{
+	SetOpenDoorObjectiveCompleted();
 }
 
 FVector AInteractableDoor::GetMeshCenter() const
@@ -73,5 +115,19 @@ FVector AInteractableDoor::GetMeshCenter() const
 
 	GetActorBounds(true, Origin, BoxExtent, false);
 	return Origin;
+}
+
+ABaseCharacter* AInteractableDoor::GetPlayer()
+{
+	APawn* Pawn = (GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())? GetWorld()->GetFirstPlayerController()->GetPawn() : nullptr;
+	return Cast<ABaseCharacter>(Pawn);
+}
+
+void AInteractableDoor::OnPlayerAddInventory(const FString& ItemName) const
+{
+	if (DoorInteractionComponent->GetKeyToOpenName().Equals(ItemName))
+	{
+		SetPickupKeyObjectiveCompleted();
+	}
 }
 

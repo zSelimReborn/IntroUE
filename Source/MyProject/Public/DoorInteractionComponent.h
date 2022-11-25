@@ -106,6 +106,8 @@ public:
 	bool CanOpenDoor() const;
 	bool IsDoorBlocked() const;
 
+	FORCEINLINE FString GetKeyToOpenName() const { return KeyToOpenName; };
+
 protected:
 	virtual float GetAngleBetweenVectors(FVector, FVector);
 	virtual bool IsPlayerLookingAtDoor(const APawn*);

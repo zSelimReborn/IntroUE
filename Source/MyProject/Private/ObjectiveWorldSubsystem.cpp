@@ -24,7 +24,6 @@ void UObjectiveWorldSubsystem::DisplayObjectiveWidget()
 
 void UObjectiveWorldSubsystem::OnObjectiveCompleted()
 {
-	DisplayObjectiveWidget();
 	CurrentObjectiveIndex = CurrentObjectiveIndex + 1;
 }
 
@@ -46,6 +45,11 @@ void UObjectiveWorldSubsystem::RemoveObjective(UObjectiveComponent* Objective)
 
 void UObjectiveWorldSubsystem::OnObjectiveStateChanged(UObjectiveComponent* Objective, EObjectiveState CurrentState)
 {
+	if (Objective->IsObjectiveCompleted())
+	{
+		OnObjectiveCompleted();
+	}
+	
 	DisplayObjectiveWidget();
 }
 
@@ -53,13 +57,14 @@ FString UObjectiveWorldSubsystem::GetCurrentObjectiveDescription()
 {
 	const UObjectiveComponent* ActiveObjective = GetCurrentObjective();
 	FString ObjectiveAsString = (ActiveObjective)? ActiveObjective->GetDescription() + " New!" : "";
-	for (size_t Index = 0; Index < CurrentObjectiveIndex; Index++)
+
+	if (Objectives.IsValidIndex(CurrentObjectiveIndex - 1))
 	{
-		const UObjectiveComponent* Objective = Objectives[Index];
-		if (Objective && Objective->IsObjectiveCompleted())
+		const UObjectiveComponent* LastObjective = Objectives[CurrentObjectiveIndex - 1];
+		if (LastObjective->IsObjectiveCompleted())
 		{
 			ObjectiveAsString += "\n ";
-			ObjectiveAsString += Objective->GetDescription();
+			ObjectiveAsString += LastObjective->GetDescription();
 			ObjectiveAsString += " Completed.";
 		}
 	}

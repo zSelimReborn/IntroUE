@@ -182,7 +182,7 @@ bool UDoorInteractionComponent::IsDoorBlocked() const
 	if (HitBehindDoor)
 	{
 		const TObjectPtr<AActor> ActorHit = SomethingBehindDoor.GetActor();
-		if (CVarToggleDebugDoor->GetBool())
+		if (CVarToggleDebugDoor->GetBool() && !ActorHit.IsNull())
 		{
 			DrawDebugString(GetWorld(), SomethingBehindDoor.GetComponent()->GetComponentLocation(), TEXT("There is something blocking the door ") + ActorHit->GetName(), nullptr, FColor::White, 1.f);
 		}

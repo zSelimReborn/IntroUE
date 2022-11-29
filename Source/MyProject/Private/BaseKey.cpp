@@ -16,15 +16,18 @@ ABaseKey::ABaseKey()
 	SetRootComponent(MainMeshComponent);
 	
 	ColliderComponent = CreateDefaultSubobject<USphereComponent>(TEXT("ColliderComponent"));
+	ColliderComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	ColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	ColliderComponent->SetupAttachment(MainMeshComponent);
 
-	ColliderComponent->OnComponentBeginOverlap.AddDynamic(this, &ABaseKey::OnColliderOverlap);
 }
 
 // Called when the game starts or when spawned
 void ABaseKey::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ColliderComponent->OnComponentBeginOverlap.AddDynamic(this, &ABaseKey::OnColliderOverlap);
 }
 
 void ABaseKey::OnColliderOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

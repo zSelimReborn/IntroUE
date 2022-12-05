@@ -35,6 +35,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void OnDeath(bool);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -54,6 +55,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category=Camera)
 	UCameraComponent* FollowCamera;
+
+	UPROPERTY(EditAnywhere, NoClear, Category=Health)
+	TObjectPtr<class UHealthComponent> HealthComponent;
 
 	FOnAddInventory OnAddInventoryEvent;
 };

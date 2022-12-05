@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "BaseKey.h"
 #include "Components/CapsuleComponent.h"
+#include "HealthComponent.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -22,6 +23,8 @@ ABaseCharacter::ABaseCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -37,6 +40,15 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ABaseCharacter::OnDeath(bool FellOutOfWorld)
+{
+	APlayerController* CurrentPlayerController = GetController<APlayerController>();
+	if (CurrentPlayerController)
+	{
+		CurrentPlayerController->RestartLevel();
+	}
 }
 
 // Called to bind functionality to input
@@ -103,9 +115,5 @@ void ABaseCharacter::Turn(float AxisValue)
 
 void ABaseCharacter::FellOutOfWorld(const UDamageType& dmgType)
 {
-	APlayerController* CurrentPlayerController = GetController<APlayerController>();
-	if (CurrentPlayerController)
-	{
-		CurrentPlayerController->RestartLevel();
-	}
+	OnDeath(true);
 }

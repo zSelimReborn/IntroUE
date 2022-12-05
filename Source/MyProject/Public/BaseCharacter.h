@@ -27,6 +27,8 @@ protected:
 	void LookUp(float AxisValue);
 	void Turn(float AxisValue);
 
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
+
 	UPROPERTY(Transient, VisibleAnywhere)
 	TArray<FString> KeyInventory;
 

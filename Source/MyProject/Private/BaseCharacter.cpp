@@ -100,3 +100,12 @@ void ABaseCharacter::Turn(float AxisValue)
 {
 	AddControllerYawInput(AxisValue);
 }
+
+void ABaseCharacter::FellOutOfWorld(const UDamageType& dmgType)
+{
+	APlayerController* CurrentPlayerController = GetController<APlayerController>();
+	if (CurrentPlayerController)
+	{
+		CurrentPlayerController->RestartLevel();
+	}
+}

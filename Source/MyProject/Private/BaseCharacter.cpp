@@ -51,6 +51,11 @@ void ABaseCharacter::OnDeath(bool FellOutOfWorld)
 	}
 }
 
+void ABaseCharacter::RegenHealth(const float& Health)
+{
+	HealthComponent->RestoreHealth(Health);
+}
+
 // Called to bind functionality to input
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

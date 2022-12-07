@@ -3,13 +3,22 @@
 
 #include "HealthComponent.h"
 #include "BaseCharacter.h"
+#include "Engine/World.h"
+#include "DrawDebugHelpers.h"
+
+static TAutoConsoleVariable<bool> CVarHealthComponent(
+	TEXT("MyProject.HealthComponent.Debug"),
+	false,
+	TEXT("Toggle debugging for health component."),
+	ECVF_Default
+);
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 
@@ -45,12 +54,22 @@ void UHealthComponent::OnTakeDamage(AActor* DamagedActor, float Damage, const UD
 	TakeDamage(Damage);
 }
 
+void UHealthComponent::DebugDraw() const
+{
+	if (CVarHealthComponent->GetBool())
+	{
+		const FVector HealthOffset{0.f, 0.f, 0.f};
+		const FString HealthAsString = TEXT("Health: ") + FString::SanitizeFloat(CurrentHealth);
+		DrawDebugString(GetWorld(), HealthOffset, HealthAsString, GetOwner(), FColor::Red, 0.f);
+	}
+}
+
 // Called every frame
 void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	DebugDraw();
 }
 
 void UHealthComponent::TakeDamage(const float& Damage)
@@ -70,6 +89,7 @@ void UHealthComponent::TakeDamage(const float& Damage)
 
 void UHealthComponent::RestoreHealth(const float& Regen)
 {
+	UE_LOG(LogTemp, Error, TEXT("UHealthComponent::RestoreHealth restoring qty of health: %.2f"), Regen);
 	if (Regen <= 0.f)
 	{
 		return;

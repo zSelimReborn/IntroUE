@@ -107,6 +107,8 @@ bool UDoorInteractionComponent::IsDoorBlocked() const
 		DrawDebugCapsule(GetWorld(), Start, SweepCapsule.GetCapsuleHalfHeight(), SweepCapsule.GetCapsuleRadius(), FQuat::Identity, FColor::Green);
 	}
 
+	FCollisionQueryParams QueryParams{TEXT("Doorcollision")};
+
 	FHitResult HitResultBetweenPlayerAndDoor;
 	const bool HitBetweenPlayerAndDoor = GetWorld()->SweepSingleByChannel(
 		HitResultBetweenPlayerAndDoor,
@@ -114,7 +116,8 @@ bool UDoorInteractionComponent::IsDoorBlocked() const
 		End,
 		FQuat::Identity,
 		ECollisionChannel::ECC_Visibility,
-		SweepCapsule
+		SweepCapsule,
+		QueryParams
 	);
 
 	bool PlayerCanSeeDoor = true;

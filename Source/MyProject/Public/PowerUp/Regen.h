@@ -19,19 +19,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void PrepareTrigger();
-
-	UFUNCTION()
-	virtual void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f))
-	float RegenHealth = 0.f;
-	
 	UPROPERTY(VisibleAnywhere, NoClear)
 	TObjectPtr<USceneComponent> DefaultSceneComponent;
 
@@ -40,4 +32,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, NoClear)
 	TObjectPtr<class UCapsuleComponent> TriggerCapsule;
+
+	UPROPERTY(VisibleAnywhere, NoClear)
+	TObjectPtr<class UHealComponent> HealComponent;
 };

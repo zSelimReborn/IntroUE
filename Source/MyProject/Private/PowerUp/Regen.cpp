@@ -4,6 +4,7 @@
 #include "PowerUp/Regen.h"
 
 #include "BaseCharacter.h"
+#include "HealComponent.h"
 #include "NiagaraComponent.h"
 #include "Components/CapsuleComponent.h"
 
@@ -23,37 +24,14 @@ ARegen::ARegen()
 	TriggerCapsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	TriggerCapsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	TriggerCapsule->SetupAttachment(RootComponent);
+
+	HealComponent = CreateDefaultSubobject<UHealComponent>(TEXT("Heal Component"));
 }
 
 // Called when the game starts or when spawned
 void ARegen::BeginPlay()
 {
 	Super::BeginPlay();
-
-	PrepareTrigger();
-}
-
-void ARegen::PrepareTrigger()
-{
-	TriggerCapsule->OnComponentBeginOverlap.AddDynamic(this, &ARegen::OnOverlapStart);
-}
-
-void ARegen::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor == GetOwner())
-	{
-		return;
-	}
-
-	ABaseCharacter* Player = Cast<ABaseCharacter>(OtherActor);
-	if (Player == nullptr)
-	{
-		return;
-	}
-
-	Player->RegenHealth(RegenHealth);
-	Destroy();
 }
 
 // Called every frame

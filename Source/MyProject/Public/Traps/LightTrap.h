@@ -8,7 +8,7 @@
 
 class UCapsuleComponent;
 class UNiagaraComponent;
-class UDealDamageComponent;
+class UPersistentDamageComponent;
 
 UCLASS()
 class MYPROJECT_API ALightTrap : public AActor
@@ -41,5 +41,5 @@ protected:
 	TObjectPtr<UCapsuleComponent> TriggerCapsule;
 
 	UPROPERTY(VisibleAnywhere, NoClear)
-	TObjectPtr<UDealDamageComponent> DealDamageComponent;
+	TObjectPtr<UPersistentDamageComponent> DealDamageComponent;
 };

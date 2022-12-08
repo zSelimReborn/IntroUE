@@ -6,6 +6,7 @@
 #include "DealDamageComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "NiagaraComponent.h"
+#include "PersistentDamageComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
@@ -28,7 +29,7 @@ ALightTrap::ALightTrap()
 	TriggerCapsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	TriggerCapsule->SetupAttachment(RootComponent);
 
-	DealDamageComponent = CreateDefaultSubobject<UDealDamageComponent>(TEXT("Damage Dealer"));
+	DealDamageComponent = CreateDefaultSubobject<UPersistentDamageComponent>(TEXT("Damage Dealer"));
 }
 
 // Called when the game starts or when spawned

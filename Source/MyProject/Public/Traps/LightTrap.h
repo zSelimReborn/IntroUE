@@ -23,6 +23,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void ToggleTrap();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -42,4 +43,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, NoClear)
 	TObjectPtr<UPersistentDamageComponent> DealDamageComponent;
+
+	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f))
+	float ToggleTime = 5.f;
+
+	UPROPERTY(NoClear)
+	FTimerHandle ToggleTimer;
 };

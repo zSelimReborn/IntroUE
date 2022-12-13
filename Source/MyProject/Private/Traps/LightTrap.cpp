@@ -36,7 +36,17 @@ ALightTrap::ALightTrap()
 void ALightTrap::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	ParticleSystemComponent->SetVisibility(DealDamageComponent->ShouldDealDamage());
+	// GetOwner()->GetWorldTimerManager().SetTimer(DealerTimer, this, &UPersistentDamageComponent::RestartDamage, Seconds, false);
+	GetWorldTimerManager().SetTimer(ToggleTimer, this, &ALightTrap::ToggleTrap, ToggleTime, true);
+}
+
+void ALightTrap::ToggleTrap()
+{
+	ParticleSystemComponent->ToggleVisibility();
+	DealDamageComponent->SetShouldDealDamage(!DealDamageComponent->ShouldDealDamage());
+	UE_LOG(LogTemp, Error, TEXT("Timer end. Should Toggle: %d %d"), ParticleSystemComponent->IsVisible(), DealDamageComponent->ShouldDealDamage());
 }
 
 // Called every frame

@@ -22,38 +22,23 @@ UPersistentDamageComponent::UPersistentDamageComponent()
 void UPersistentDamageComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	PrepareTrigger();	
-}
-
-void UPersistentDamageComponent::PrepareTrigger()
-{
-	TriggerShape = GetOwner()->FindComponentByClass<UShapeComponent>();
-	if (TriggerShape)
-	{
-		TriggerShape->OnComponentBeginOverlap.AddDynamic(this, &UPersistentDamageComponent::OnOverlapStart);
-		TriggerShape->OnComponentEndOverlap.AddDynamic(this, &UPersistentDamageComponent::OnOverlapEnd);
-	}
 }
 
 void UPersistentDamageComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == GetOwner())
-	{
-		return;
-	}
+	Super::OnOverlapStart(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
-	OverlappingActor = OtherActor;
 	SetDealingDamage();
 }
 
 void UPersistentDamageComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	Super::OnOverlapEnd(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
+	
 	SetDefaultState();
 	GetOwner()->GetWorldTimerManager().ClearTimer(DealerTimer);
-	ResetOverlappingActor();
 }
 
 
@@ -75,30 +60,20 @@ void UPersistentDamageComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	switch (CurrentState)
+	if (ShouldDealDamage())
 	{
-	case EDealerDamageState::DealingDmg:
-		ApplyDamage();
-		StartTimer();
-		SetCoolDown();
-		break;
-	case EDealerDamageState::CoolDown: break;
-	case EDealerDamageState::Default: break;
-	default: ;
+		switch (CurrentState)
+		{
+		case EDealerDamageState::DealingDmg:
+			ApplyDamage(DamagePerSeconds);
+			StartTimer();
+			SetCoolDown();
+			break;
+		case EDealerDamageState::CoolDown: break;
+		case EDealerDamageState::Default: break;
+		default: ;
+		}
 	}
-}
-
-void UPersistentDamageComponent::ApplyDamage() const
-{
-	if (OverlappingActor)
-	{
-		UGameplayStatics::ApplyDamage(
-			OverlappingActor,
-			DamagePerSeconds,
-			nullptr,
-			nullptr,
-			UDamageType::StaticClass()
-		);
-	}
+	
 }
 

@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Abstract/AbstractDealDamageComponent.h"
 #include "DealDamageComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class MYPROJECT_API UDealDamageComponent : public UActorComponent
+class MYPROJECT_API UDealDamageComponent : public UAbstractDealDamageComponent
 {
 	GENERATED_BODY()
 
@@ -17,26 +17,13 @@ public:
 	UDealDamageComponent();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-	UFUNCTION()
-	virtual void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	void PrepareTrigger();
-
+	virtual void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void SetShouldDealDamage(const bool) override;
 protected:
 	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f))
 	float Damage = 0.f;
-	
-	UPROPERTY(Transient, VisibleAnywhere, NoClear)
-	TObjectPtr<UShapeComponent> TriggerComponent;
-	
 };

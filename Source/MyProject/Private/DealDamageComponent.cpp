@@ -16,49 +16,12 @@ UDealDamageComponent::UDealDamageComponent()
 	// ...
 }
 
-
-// Called when the game starts
-void UDealDamageComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	PrepareTrigger();
-}
-
 void UDealDamageComponent::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Error, TEXT("UDealDamageComponent::OnOverlapStart called."));
+	Super::OnOverlapStart(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
-	if (OtherActor == GetOwner())
-	{
-		return;
-	}
-	
-	UGameplayStatics::ApplyDamage(
-			OtherActor,
-			Damage,
-			nullptr,
-			nullptr,
-			UDamageType::StaticClass()
-		);
-}
-
-
-void UDealDamageComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	UE_LOG(LogTemp, Error, TEXT("UDealDamageComponent::OnOverlapEnd called."));
-}
-
-void UDealDamageComponent::PrepareTrigger()
-{
-	TriggerComponent = GetOwner()->FindComponentByClass<UShapeComponent>();
-	if (TriggerComponent)
-	{
-		TriggerComponent->OnComponentBeginOverlap.AddDynamic(this, &UDealDamageComponent::OnOverlapStart);
-		TriggerComponent->OnComponentEndOverlap.AddDynamic(this, &UDealDamageComponent::OnOverlapEnd);
-	}
+	ApplyDamage(Damage);
 }
 
 // Called every frame
@@ -67,5 +30,15 @@ void UDealDamageComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UDealDamageComponent::SetShouldDealDamage(const bool bCond)
+{
+	Super::SetShouldDealDamage(bCond);
+
+	if (ShouldDealDamage())
+	{
+		ApplyDamage(Damage);
+	}
 }
 

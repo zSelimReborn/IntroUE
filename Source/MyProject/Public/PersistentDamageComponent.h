@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Abstract/AbstractDealDamageComponent.h"
 #include "PersistentDamageComponent.generated.h"
 
 UENUM()
@@ -16,7 +16,7 @@ enum class EDealerDamageState
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class MYPROJECT_API UPersistentDamageComponent : public UActorComponent
+class MYPROJECT_API UPersistentDamageComponent : public UAbstractDealDamageComponent
 {
 	GENERATED_BODY()
 
@@ -27,19 +27,14 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	
+	virtual void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
-	void PrepareTrigger();
-
-	UFUNCTION()
-	virtual void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
 	FORCEINLINE void SetDealingDamage() { CurrentState = EDealerDamageState::DealingDmg; }
 	FORCEINLINE void SetCoolDown() { CurrentState = EDealerDamageState::CoolDown; }
 	FORCEINLINE void SetDefaultState() { CurrentState = EDealerDamageState::Default; }
-	FORCEINLINE void ResetOverlappingActor() { OverlappingActor = nullptr; }
 
 	void RestartDamage();
 	void StartTimer();
@@ -47,29 +42,21 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	void ApplyDamage() const;
-
+	
 	FORCEINLINE EDealerDamageState GetState() const { return CurrentState; }
 	FORCEINLINE bool IsDealingDamage() const { return CurrentState == EDealerDamageState::DealingDmg; }
 	FORCEINLINE bool IsCoolingDown() const { return CurrentState == EDealerDamageState::CoolDown; }
 
 protected:
-	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f))
+	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f), Category=Damage)
 	float DamagePerSeconds = 0.f;
 
-	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f))
+	UPROPERTY(EditAnywhere, meta=(ClampMin=0.f), Category=Damage)
 	float Seconds = 1.f;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category=Damage)
 	EDealerDamageState CurrentState = EDealerDamageState::Default;
-
-	UPROPERTY(VisibleAnywhere, Transient)
-	TObjectPtr<class UShapeComponent> TriggerShape;
-
-	UPROPERTY(VisibleAnywhere, Transient)
-	TObjectPtr<AActor> OverlappingActor;
-
+	
 	UPROPERTY(NoClear)
 	FTimerHandle DealerTimer;
 };

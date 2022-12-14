@@ -6,8 +6,10 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "BaseKey.h"
+#include "Checkpoint.h"
 #include "Components/CapsuleComponent.h"
 #include "HealthComponent.h"
+#include "Subsystems/CheckpointSubsystem.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -44,11 +46,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 void ABaseCharacter::OnDeath(bool FellOutOfWorld)
 {
-	APlayerController* CurrentPlayerController = GetController<APlayerController>();
-	if (CurrentPlayerController)
-	{
-		CurrentPlayerController->RestartLevel();
-	}
+	OnDeathPlayerEvent.Broadcast(FellOutOfWorld);
 }
 
 void ABaseCharacter::RegenHealth(const float& Health)

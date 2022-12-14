@@ -9,8 +9,6 @@ UCustomLogComponent::UCustomLogComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	UE_LOG(LogTemp, Error, TEXT("This is called when UCustomLogComponent is created."));
 }
 
 
@@ -18,8 +16,6 @@ UCustomLogComponent::UCustomLogComponent()
 void UCustomLogComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UE_LOG(LogTemp, Error, TEXT("This is called when the game starts. Message: %s"), *DataString);
 }
 
 

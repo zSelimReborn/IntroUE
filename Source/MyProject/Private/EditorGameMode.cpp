@@ -6,6 +6,7 @@
 #include "ObjectiveWorldSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Subsystems/CheckpointSubsystem.h"
 
 void AEditorGameMode::StartPlay()
 {
@@ -16,5 +17,11 @@ void AEditorGameMode::StartPlay()
 	{
 		ObjectiveWorldSubsystem->CreateObjectiveWidget(ObjectiveWidgetClass);
 		ObjectiveWorldSubsystem->DisplayObjectiveWidget();
+	}
+
+	UCheckpointSubsystem* CheckpointSubsystem = GetGameInstance()->GetSubsystem<UCheckpointSubsystem>();
+	if (CheckpointSubsystem)
+	{
+		CheckpointSubsystem->LoadCheckpoints();
 	}
 }

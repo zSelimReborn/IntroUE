@@ -50,6 +50,9 @@ public:
 	DECLARE_EVENT_OneParam(FBaseCharacter, FOnAddInventory, const FString&);
 	FOnAddInventory& OnAddInventory() { return OnAddInventoryEvent; }
 
+	DECLARE_EVENT_OneParam(FBaseCharacter, FOnDeathPlayer, bool);
+	FOnDeathPlayer& OnDeathPlayer() { return OnDeathPlayerEvent; }
+
 private:
 	UPROPERTY(EditAnywhere, Category=Camera)
 	USpringArmComponent* CameraBoom;
@@ -61,4 +64,5 @@ private:
 	TObjectPtr<class UHealthComponent> HealthComponent;
 
 	FOnAddInventory OnAddInventoryEvent;
+	FOnDeathPlayer OnDeathPlayerEvent;
 };

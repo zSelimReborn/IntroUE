@@ -46,7 +46,6 @@ void ALightTrap::ToggleTrap()
 {
 	ParticleSystemComponent->ToggleVisibility();
 	DealDamageComponent->SetShouldDealDamage(!DealDamageComponent->ShouldDealDamage());
-	UE_LOG(LogTemp, Error, TEXT("Timer end. Should Toggle: %d %d"), ParticleSystemComponent->IsVisible(), DealDamageComponent->ShouldDealDamage());
 }
 
 // Called every frame

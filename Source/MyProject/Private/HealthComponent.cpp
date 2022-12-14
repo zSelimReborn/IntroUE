@@ -74,7 +74,6 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UHealthComponent::TakeDamage(const float& Damage)
 {
-	UE_LOG(LogTemp, Error, TEXT("UHealthComponent::TakeDamage applying damage of: %.2f"), Damage);
 	if (Damage <= 0.f || IsDead())
 	{
 		return;
@@ -89,7 +88,6 @@ void UHealthComponent::TakeDamage(const float& Damage)
 
 void UHealthComponent::RestoreHealth(const float& Regen)
 {
-	UE_LOG(LogTemp, Error, TEXT("UHealthComponent::RestoreHealth restoring qty of health: %.2f"), Regen);
 	if (Regen <= 0.f)
 	{
 		return;

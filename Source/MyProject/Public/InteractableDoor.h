@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interface/IInteractable.h"
 #include "InteractableDoor.generated.h"
 
 
@@ -17,7 +18,7 @@ class ABaseCharacter;
  * 
  */
 UCLASS()
-class MYPROJECT_API AInteractableDoor : public AActor
+class MYPROJECT_API AInteractableDoor : public AActor, public IIInteractable
 {
 	GENERATED_BODY()
 
@@ -47,9 +48,21 @@ public:
 
 	FVector GetMeshCenter() const;
 
+	virtual void Interact(APawn*) override;
+	virtual void ShowInteractWidget() override;
+	virtual void HideInteractWidget() override;
+	
 protected:
 	ABaseCharacter* GetPlayer();
 	void OnPlayerAddInventory(const FString&) const;
+
+	void PrepareTrigger();
+	
+	UFUNCTION()
+	virtual void OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 protected:
 	UPROPERTY(EditAnywhere, NoClear)
@@ -69,4 +82,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, NoClear)
 	TObjectPtr<UObjectiveComponent> OpenDoorObjective;
+
+	UPROPERTY(EditAnywhere, NoClear)
+	TObjectPtr<class UWidgetComponent> InteractWidgetComponent;
 };

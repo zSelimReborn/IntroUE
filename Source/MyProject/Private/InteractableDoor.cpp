@@ -8,6 +8,7 @@
 #include "DoorInteractionComponent.h"
 #include "ObjectiveComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 
 AInteractableDoor::AInteractableDoor()
 {
@@ -18,7 +19,12 @@ AInteractableDoor::AInteractableDoor()
 	DoorMainComponent->SetupAttachment(DoorFrameComponent);
 
 	OpenerBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("OpenerBoxComponent"));
+	OpenerBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	OpenerBoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	OpenerBoxComponent->SetupAttachment(DoorFrameComponent);
+
+	InteractWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Interact Widget Component"));
+	InteractWidgetComponent->SetupAttachment(DoorFrameComponent);
 
 	DoorInteractionComponent = CreateDefaultSubobject<UDoorInteractionComponent>(TEXT("DoorInteractionComponent"));
 	PickupKeyObjective = CreateDefaultSubobject<UObjectiveComponent>(TEXT("PickupKeyObjective"));
@@ -31,6 +37,8 @@ void AInteractableDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PrepareTrigger();
+	HideInteractWidget();
 	if (ABaseCharacter* Player = GetPlayer())
 	{
 		Player->OnAddInventory().AddUObject(this, &AInteractableDoor::OnPlayerAddInventory);
@@ -117,6 +125,28 @@ FVector AInteractableDoor::GetMeshCenter() const
 	return Origin;
 }
 
+void AInteractableDoor::Interact(APawn* Player)
+{
+	// Open or close the door
+	DoorInteractionComponent->ToggleDoor();
+}
+
+void AInteractableDoor::ShowInteractWidget()
+{
+	if (InteractWidgetComponent)
+	{
+		InteractWidgetComponent->SetVisibility(true);
+	}
+}
+
+void AInteractableDoor::HideInteractWidget()
+{
+	if (InteractWidgetComponent)
+	{
+		InteractWidgetComponent->SetVisibility(false);
+	}
+}
+
 ABaseCharacter* AInteractableDoor::GetPlayer()
 {
 	APawn* Pawn = (GetWorld() && GetWorld()->GetFirstLocalPlayerFromController())? GetWorld()->GetFirstPlayerController()->GetPawn() : nullptr;
@@ -128,6 +158,44 @@ void AInteractableDoor::OnPlayerAddInventory(const FString& ItemName) const
 	if (DoorInteractionComponent->GetKeyToOpenName().Equals(ItemName))
 	{
 		SetPickupKeyObjectiveCompleted();
+	}
+}
+
+void AInteractableDoor::PrepareTrigger()
+{
+	OpenerBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AInteractableDoor::OnOverlapStart);
+	OpenerBoxComponent->OnComponentEndOverlap.AddDynamic(this, &AInteractableDoor::OnOverlapEnd);
+}
+
+void AInteractableDoor::OnOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == this)
+	{
+		return;
+	}
+
+	ABaseCharacter* Player = Cast<ABaseCharacter>(OtherActor);
+	if (Player)
+	{
+		ShowInteractWidget();
+		Player->SetInteractableOverlappingActor(this);
+	}
+}
+
+void AInteractableDoor::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor == this)
+	{
+		return;
+	}
+
+	ABaseCharacter* Player = Cast<ABaseCharacter>(OtherActor);
+	if (Player)
+	{
+		HideInteractWidget();
+		Player->ResetInteractableOverlappingActor(this);
 	}
 }
 

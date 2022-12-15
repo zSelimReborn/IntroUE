@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class ABaseKey;
+class IIInteractable;
 
 UCLASS()
 class MYPROJECT_API ABaseCharacter : public ACharacter
@@ -22,10 +23,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	void MoveForward(float AxisValue);
-	void MoveRight(float AxisValue);
-	void LookUp(float AxisValue);
-	void Turn(float AxisValue);
+	void Interact();
 
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
@@ -53,6 +51,9 @@ public:
 	DECLARE_EVENT_OneParam(FBaseCharacter, FOnDeathPlayer, bool);
 	FOnDeathPlayer& OnDeathPlayer() { return OnDeathPlayerEvent; }
 
+	void SetInteractableOverlappingActor(IIInteractable* Actor);
+	void ResetInteractableOverlappingActor(IIInteractable* Actor);
+
 private:
 	UPROPERTY(EditAnywhere, Category=Camera)
 	USpringArmComponent* CameraBoom;
@@ -65,4 +66,6 @@ private:
 
 	FOnAddInventory OnAddInventoryEvent;
 	FOnDeathPlayer OnDeathPlayerEvent;
+
+	TObjectPtr<IIInteractable> InteractableOverlappingActor; 
 };

@@ -33,6 +33,18 @@ UDoorInteractionComponent::UDoorInteractionComponent()
 }
 
 
+void UDoorInteractionComponent::ToggleDoor()
+{
+	if (IsClosed() && Player && OpenerTrigger->IsOverlappingActor(Player) && IsPlayerLookingAtDoor(Player) && CanOpenDoor() && !IsDoorBlocked())
+	{
+		SetOpening();
+	}
+	else if (IsOpened())
+	{
+		SetClosing();
+	}
+}
+
 // Called when the game starts
 void UDoorInteractionComponent::BeginPlay()
 {
@@ -254,7 +266,6 @@ void UDoorInteractionComponent::PerformRotation(const float DeltaTime)
 		case EDoorState::Closed:
 			if (Player && OpenerTrigger->IsOverlappingActor(Player) && IsPlayerLookingAtDoor(Player) && CanOpenDoor() && !IsDoorBlocked())
 			{
-				SetOpening();
 				if (IsPlayerBehindDoor(Player))
 				{
 					DesiredYawRotation = FMath::Min(-DesiredYawRotation, DesiredYawRotation);

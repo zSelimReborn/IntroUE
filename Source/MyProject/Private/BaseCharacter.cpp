@@ -6,10 +6,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "BaseKey.h"
-#include "Checkpoint.h"
 #include "Components/CapsuleComponent.h"
 #include "HealthComponent.h"
-#include "Subsystems/CheckpointSubsystem.h"
+#include "Interface/IInteractable.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -37,6 +36,14 @@ void ABaseCharacter::BeginPlay()
 	KeyInventory.Empty();
 }
 
+void ABaseCharacter::Interact()
+{
+	if (InteractableOverlappingActor)
+	{
+		InteractableOverlappingActor->Interact(this);
+	}
+}
+
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
 {
@@ -59,10 +66,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::LookUp);
-	PlayerInputComponent->BindAxis("Turn", this, &ABaseCharacter::Turn);
+	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Pressed, this, &ABaseCharacter::Interact);
 }
 
 void ABaseCharacter::AddKeyToInventory(const FString& KeyName)
@@ -86,34 +90,22 @@ float ABaseCharacter::GetCapsuleHalfHeight() const
 	return GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 }
 
-void ABaseCharacter::MoveForward(float AxisValue)
+void ABaseCharacter::SetInteractableOverlappingActor(IIInteractable* Interactable)
 {
-	if ((Controller != nullptr) && (AxisValue != 0.f))
+	if (InteractableOverlappingActor)
 	{
-		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
-		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
-		AddMovementInput(Direction, AxisValue);
+		InteractableOverlappingActor->HideInteractWidget();
 	}
+
+	InteractableOverlappingActor = Interactable;
 }
 
-void ABaseCharacter::MoveRight(float AxisValue)
+void ABaseCharacter::ResetInteractableOverlappingActor(IIInteractable* Interactable)
 {
-	if ((Controller != nullptr) && (AxisValue != 0.f))
+	if (InteractableOverlappingActor == Interactable)
 	{
-		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
-		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y));
-		AddMovementInput(Direction, AxisValue);
+		InteractableOverlappingActor = nullptr;
 	}
-}
-
-void ABaseCharacter::LookUp(float AxisValue)
-{
-	AddControllerPitchInput(AxisValue);
-}
-
-void ABaseCharacter::Turn(float AxisValue)
-{
-	AddControllerYawInput(AxisValue);
 }
 
 void ABaseCharacter::FellOutOfWorld(const UDamageType& dmgType)

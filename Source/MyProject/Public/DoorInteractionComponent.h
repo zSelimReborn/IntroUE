@@ -48,6 +48,8 @@ public:
 	FClosed& OnClosed() { return ClosedEvent; }
 	FClosed ClosedEvent;
 
+	void ToggleDoor();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

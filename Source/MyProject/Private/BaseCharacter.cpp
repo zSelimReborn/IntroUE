@@ -12,6 +12,7 @@
 #include "Interface/IInteractable.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
+#include "Actors/Spell.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -27,6 +28,9 @@ ABaseCharacter::ABaseCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	SpellSpawnLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Spell Spawn Location"));
+	SpellSpawnLocation->SetupAttachment(GetMesh());
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	ManaComponent = CreateDefaultSubobject<UManaComponent>(TEXT("ManaComponent"));
@@ -78,7 +82,49 @@ void ABaseCharacter::RegenHealth(const float& Health)
 
 void ABaseCharacter::Cast()
 {
-	ManaComponent->UseMana(10.f);
+	if (!ManaComponent->HasMana())
+	{
+		return;
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = GetInstigator();
+
+	FVector CastSpawnLocation; FRotator CastSpawnRotation;
+	GetCastSpawnPoint(CastSpawnLocation, CastSpawnRotation);
+
+	ASpell* NewSpell = GetWorld()->SpawnActor<ASpell>(
+		Spell,
+		// SpellSpawnLocation->GetComponentLocation(),
+		// SpellSpawnLocation->GetComponentRotation(),
+		CastSpawnLocation,
+		CastSpawnRotation,
+		SpawnParams
+	);
+
+	if (NewSpell)
+	{
+		NewSpell->Cast(CastSpawnRotation.Vector());
+		ManaComponent->UseMana(NewSpell->GetManaCost());
+	}
+}
+
+void ABaseCharacter::GetCastSpawnPoint(FVector& OutLocation, FRotator& OutRotation) const
+{
+	// Get the camera transform.
+	FVector CameraLocation;
+	FRotator CameraRotation;
+	GetActorEyesViewPoint(CameraLocation, CameraRotation);
+	CameraLocation = SpellSpawnLocation->GetComponentLocation();
+	
+	FVector CameraOffset;
+	CameraOffset.Set(0.0f, 0.0f, 0.0f);
+	OutLocation = CameraLocation + FTransform(CameraRotation).TransformVector(CameraOffset);
+	
+	// Skew the aim to be slightly upwards.
+	OutRotation = CameraRotation;
+	OutRotation.Pitch += 10.0f;
 }
 
 // Called to bind functionality to input

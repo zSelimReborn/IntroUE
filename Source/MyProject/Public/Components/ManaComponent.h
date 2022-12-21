@@ -33,6 +33,7 @@ public:
 
 	FORCEINLINE float GetMaxMana() const { return MaxMana; }
 	FORCEINLINE float GetCurrentMana() const { return CurrentMana; }
+	FORCEINLINE bool HasMana() const { return GetCurrentMana() > 0; }
 
 	void UseMana(const float&);
 	void FillMana(const float&);

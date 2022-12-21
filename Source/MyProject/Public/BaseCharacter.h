@@ -41,6 +41,8 @@ public:
 
 	virtual void Cast();
 
+	void GetCastSpawnPoint(FVector&, FRotator&) const;
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -99,8 +101,14 @@ private:
 	UPROPERTY(VisibleAnywhere, NoClear, Category=Mana)
 	TObjectPtr<class UManaComponent> ManaComponent;
 
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Spell)
+	TObjectPtr<USceneComponent> SpellSpawnLocation;
+
 	UPROPERTY(EditAnywhere, NoClear)
 	TSubclassOf<UUserWidget> HudWidgetClass;
+
+	UPROPERTY(EditAnywhere, Category=Spell)
+	TSubclassOf<class ASpell> Spell;
 
 	FOnAddInventory OnAddInventoryEvent;
 	FOnDeathPlayer OnDeathPlayerEvent;

@@ -47,9 +47,9 @@ void UHealthComponent::OnDeath()
 
 void UHealthComponent::SetupOnDamageDelegate()
 {
-	if (Player)
+	if (GetOwner())
 	{
-		Player->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::OnTakeDamage);
+		GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::OnTakeDamage);
 	}
 }
 

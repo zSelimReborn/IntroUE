@@ -8,6 +8,7 @@
 #include "BaseKey.h"
 #include "Components/CapsuleComponent.h"
 #include "HealthComponent.h"
+#include "Components//ManaComponent.h"
 #include "Interface/IInteractable.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
@@ -28,6 +29,7 @@ ABaseCharacter::ABaseCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	ManaComponent = CreateDefaultSubobject<UManaComponent>(TEXT("ManaComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -74,12 +76,18 @@ void ABaseCharacter::RegenHealth(const float& Health)
 	HealthComponent->RestoreHealth(Health);
 }
 
+void ABaseCharacter::Cast()
+{
+	ManaComponent->UseMana(10.f);
+}
+
 // Called to bind functionality to input
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Pressed, this, &ABaseCharacter::Interact);
+	PlayerInputComponent->BindAction("Cast", EInputEvent::IE_Pressed, this, &ABaseCharacter::Cast);
 }
 
 void ABaseCharacter::AddKeyToInventory(const FString& KeyName)
@@ -158,6 +166,26 @@ float ABaseCharacter::GetCurrentShieldPercentage() const
 	const float CurrentShield = GetCurrentShield();
 
 	const float Percentage = CurrentShield / MaxShield;
+	return Percentage;
+}
+
+float ABaseCharacter::GetMaxMana() const
+{
+	return ManaComponent->GetMaxMana();
+}
+
+float ABaseCharacter::GetCurrentMana() const
+{
+	return ManaComponent->GetCurrentMana();
+}
+
+float ABaseCharacter::GetCurrentManaPercentage() const
+{
+	// CurrentMana : MaxMana = Percentage : 1
+	const float MaxMana = GetMaxMana();
+	const float CurrentMana = GetCurrentMana();
+
+	const float Percentage = CurrentMana / MaxMana;
 	return Percentage;
 }
 

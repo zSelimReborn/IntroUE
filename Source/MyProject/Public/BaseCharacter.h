@@ -39,6 +39,8 @@ public:
 	virtual void OnDeath(bool);
 	virtual void RegenHealth(const float&);
 
+	virtual void Cast();
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -74,16 +76,28 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentShieldPercentage() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetMaxMana() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentMana() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentManaPercentage() const;
 	
 private:
-	UPROPERTY(EditAnywhere, Category=Camera)
+	UPROPERTY(VisibleAnywhere, Category=Camera)
 	USpringArmComponent* CameraBoom;
 
-	UPROPERTY(EditAnywhere, Category=Camera)
+	UPROPERTY(VisibleAnywhere, Category=Camera)
 	UCameraComponent* FollowCamera;
 
-	UPROPERTY(EditAnywhere, NoClear, Category=Health)
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Health)
 	TObjectPtr<class UHealthComponent> HealthComponent;
+
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Mana)
+	TObjectPtr<class UManaComponent> ManaComponent;
 
 	UPROPERTY(EditAnywhere, NoClear)
 	TSubclassOf<UUserWidget> HudWidgetClass;

@@ -25,6 +25,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Interact();
+	void ChangeSpellSlot1();
+	void ChangeSpellSlot2();
+	void ChangeSpellSlot3();
 
 	void DisplayHudWidget() const;
 
@@ -40,7 +43,7 @@ public:
 	virtual void RegenHealth(const float&);
 
 	virtual void Cast();
-
+	void ChangeSpell(const int8 Index);
 	void GetCastSpawnPoint(FVector&, FRotator&) const;
 
 	// Called to bind functionality to input
@@ -108,7 +111,10 @@ private:
 	TSubclassOf<UUserWidget> HudWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category=Spell)
-	TSubclassOf<class ASpell> Spell;
+	TArray<TSubclassOf<class ASpell>> SpellInventory;
+
+	UPROPERTY(VisibleAnywhere, Category=Spell)
+	int8 CurrentSpellIndex = 0;
 
 	FOnAddInventory OnAddInventoryEvent;
 	FOnDeathPlayer OnDeathPlayerEvent;

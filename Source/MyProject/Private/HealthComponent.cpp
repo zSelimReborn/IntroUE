@@ -39,9 +39,14 @@ void UHealthComponent::BeginPlay()
 void UHealthComponent::OnDeath()
 {
 	ResetShieldCooldownTimer();
+	// If player handle death to respawn
 	if (Player)
 	{
 		Player->OnDeath(false);
+	}
+	else
+	{
+		GetOwner()->Destroy();
 	}
 }
 

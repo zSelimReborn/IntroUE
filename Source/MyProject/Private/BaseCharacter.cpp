@@ -53,6 +53,21 @@ void ABaseCharacter::Interact()
 	}
 }
 
+void ABaseCharacter::ChangeSpellSlot1()
+{
+	ChangeSpell(0);
+}
+
+void ABaseCharacter::ChangeSpellSlot2()
+{
+	ChangeSpell(1);
+}
+
+void ABaseCharacter::ChangeSpellSlot3()
+{
+	ChangeSpell(2);
+}
+
 void ABaseCharacter::DisplayHudWidget() const
 {
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -94,19 +109,33 @@ void ABaseCharacter::Cast()
 	FVector CastSpawnLocation; FRotator CastSpawnRotation;
 	GetCastSpawnPoint(CastSpawnLocation, CastSpawnRotation);
 
-	ASpell* NewSpell = GetWorld()->SpawnActor<ASpell>(
-		Spell,
-		// SpellSpawnLocation->GetComponentLocation(),
-		// SpellSpawnLocation->GetComponentRotation(),
-		CastSpawnLocation,
-		CastSpawnRotation,
-		SpawnParams
-	);
+	const TSubclassOf<ASpell> CurrentSpell = SpellInventory.IsValidIndex(CurrentSpellIndex)? SpellInventory[CurrentSpellIndex] : nullptr;
 
-	if (NewSpell)
+	if (CurrentSpell)
 	{
-		NewSpell->Cast(CastSpawnRotation.Vector());
-		ManaComponent->UseMana(NewSpell->GetManaCost());
+		ASpell* NewSpell = GetWorld()->SpawnActor<ASpell>(
+			CurrentSpell,
+			CastSpawnLocation,
+			CastSpawnRotation,
+			SpawnParams
+		);
+
+		if (NewSpell)
+		{
+			NewSpell->Cast(CastSpawnRotation.Vector());
+			ManaComponent->UseMana(NewSpell->GetManaCost());
+		}
+	}
+}
+
+void ABaseCharacter::ChangeSpell(const int8 Index)
+{
+	if (SpellInventory.IsValidIndex(Index))
+	{
+		CurrentSpellIndex = Index;
+	} else
+	{
+		CurrentSpellIndex = 0;
 	}
 }
 
@@ -134,6 +163,10 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Pressed, this, &ABaseCharacter::Interact);
 	PlayerInputComponent->BindAction("Cast", EInputEvent::IE_Pressed, this, &ABaseCharacter::Cast);
+
+	PlayerInputComponent->BindAction("SpellSlot1", EInputEvent::IE_Pressed, this, &ABaseCharacter::ChangeSpellSlot1);
+	PlayerInputComponent->BindAction("SpellSlot2", EInputEvent::IE_Pressed, this, &ABaseCharacter::ChangeSpellSlot2);
+	PlayerInputComponent->BindAction("SpellSlot3", EInputEvent::IE_Pressed, this, &ABaseCharacter::ChangeSpellSlot3);
 }
 
 void ABaseCharacter::AddKeyToInventory(const FString& KeyName)

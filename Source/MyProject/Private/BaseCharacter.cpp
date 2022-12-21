@@ -9,6 +9,8 @@
 #include "Components/CapsuleComponent.h"
 #include "HealthComponent.h"
 #include "Interface/IInteractable.h"
+#include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -33,6 +35,7 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	DisplayHudWidget();
 	KeyInventory.Empty();
 }
 
@@ -41,6 +44,16 @@ void ABaseCharacter::Interact()
 	if (InteractableOverlappingActor)
 	{
 		InteractableOverlappingActor->Interact(this);
+	}
+}
+
+void ABaseCharacter::DisplayHudWidget() const
+{
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	UUserWidget* HudWidget = CreateWidget(PlayerController, HudWidgetClass);
+	if (HudWidget)
+	{
+		HudWidget->AddToViewport();
 	}
 }
 
@@ -106,6 +119,46 @@ void ABaseCharacter::ResetInteractableOverlappingActor(IIInteractable* Interacta
 	{
 		InteractableOverlappingActor = nullptr;
 	}
+}
+
+float ABaseCharacter::GetMaxHealth() const
+{
+	return HealthComponent->GetMaxHealth();
+}
+
+float ABaseCharacter::GetCurrentHealth() const
+{
+	return HealthComponent->GetCurrentHealth();
+}
+
+float ABaseCharacter::GetCurrentHealthPercentage() const
+{
+	// CurrentHealth : MaxHealth = Percentage : 1
+	const float MaxHealth = GetMaxHealth();
+	const float CurrentHealth = GetCurrentHealth();
+
+	const float Percentage = CurrentHealth/ MaxHealth;
+	return Percentage;
+}
+
+float ABaseCharacter::GetMaxShield() const
+{
+	return HealthComponent->GetMaxShield();
+}
+
+float ABaseCharacter::GetCurrentShield() const
+{
+	return HealthComponent->GetCurrentShield();
+}
+
+float ABaseCharacter::GetCurrentShieldPercentage() const
+{
+	// CurrentShield : MaxShield = Percentage : 1
+	const float MaxShield = GetMaxShield();
+	const float CurrentShield = GetCurrentShield();
+
+	const float Percentage = CurrentShield / MaxShield;
+	return Percentage;
 }
 
 void ABaseCharacter::FellOutOfWorld(const UDamageType& dmgType)

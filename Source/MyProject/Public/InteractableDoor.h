@@ -13,6 +13,7 @@ class UStaticMeshComponent;
 class UBoxComponent;
 class UObjectiveComponent;
 class ABaseCharacter;
+class UWidgetComponent;
 
 /**
  * 
@@ -65,24 +66,24 @@ protected:
 	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 protected:
-	UPROPERTY(EditAnywhere, NoClear)
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Door)
 	UStaticMeshComponent* DoorMainComponent;
 
-	UPROPERTY(EditAnywhere, NoClear)
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Door)
 	UStaticMeshComponent* DoorFrameComponent;
 
-	UPROPERTY(EditAnywhere, NoClear)
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Door)
 	UBoxComponent* OpenerBoxComponent;
 	
-	UPROPERTY(EditAnywhere, NoClear)
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Door)
 	UDoorInteractionComponent* DoorInteractionComponent;
 
-	UPROPERTY(EditAnywhere, NoClear)
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Door)
 	TObjectPtr<UObjectiveComponent> PickupKeyObjective;
 	
-	UPROPERTY(EditAnywhere, NoClear)
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Door)
 	TObjectPtr<UObjectiveComponent> OpenDoorObjective;
 
-	UPROPERTY(EditAnywhere, NoClear)
-	TObjectPtr<class UWidgetComponent> InteractWidgetComponent;
+	UPROPERTY(VisibleAnywhere, NoClear, Category=Door)
+	TObjectPtr<UWidgetComponent> InteractWidgetComponent;
 };

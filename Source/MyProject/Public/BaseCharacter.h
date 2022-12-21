@@ -10,6 +10,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class ABaseKey;
 class IIInteractable;
+class UUserWidget;
 
 UCLASS()
 class MYPROJECT_API ABaseCharacter : public ACharacter
@@ -24,6 +25,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Interact();
+
+	void DisplayHudWidget() const;
 
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
@@ -54,6 +57,24 @@ public:
 	void SetInteractableOverlappingActor(IIInteractable* Actor);
 	void ResetInteractableOverlappingActor(IIInteractable* Actor);
 
+	UFUNCTION(BlueprintCallable)
+	float GetMaxHealth() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentHealth() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentHealthPercentage() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetMaxShield() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentShield() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetCurrentShieldPercentage() const;
+	
 private:
 	UPROPERTY(EditAnywhere, Category=Camera)
 	USpringArmComponent* CameraBoom;
@@ -63,6 +84,9 @@ private:
 
 	UPROPERTY(EditAnywhere, NoClear, Category=Health)
 	TObjectPtr<class UHealthComponent> HealthComponent;
+
+	UPROPERTY(EditAnywhere, NoClear)
+	TSubclassOf<UUserWidget> HudWidgetClass;
 
 	FOnAddInventory OnAddInventoryEvent;
 	FOnDeathPlayer OnDeathPlayerEvent;

@@ -11,6 +11,7 @@ class UCameraComponent;
 class ABaseKey;
 class IIInteractable;
 class UUserWidget;
+class AAttractors;
 
 UCLASS()
 class MYPROJECT_API ABaseCharacter : public ACharacter
@@ -63,6 +64,10 @@ public:
 
 	void SetInteractableOverlappingActor(IIInteractable* Actor);
 	void ResetInteractableOverlappingActor(IIInteractable* Actor);
+
+	void AddCameraAttractor(AAttractors*);
+	void RemoveCameraAttractor(AAttractors*);
+	bool HasCameraAttractor() const;
 
 	UFUNCTION(BlueprintCallable)
 	float GetMaxHealth() const;
@@ -119,5 +124,8 @@ private:
 	FOnAddInventory OnAddInventoryEvent;
 	FOnDeathPlayer OnDeathPlayerEvent;
 
-	TObjectPtr<IIInteractable> InteractableOverlappingActor; 
+	TObjectPtr<IIInteractable> InteractableOverlappingActor;
+
+	UPROPERTY(VisibleAnywhere, Transient)
+	TArray<AAttractors*> CurrentAttractors;
 };

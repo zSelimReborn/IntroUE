@@ -208,6 +208,21 @@ void ABaseCharacter::ResetInteractableOverlappingActor(IIInteractable* Interacta
 	}
 }
 
+void ABaseCharacter::AddCameraAttractor(AAttractors* CameraAttractor)
+{
+	CurrentAttractors.Add(CameraAttractor);
+}
+
+void ABaseCharacter::RemoveCameraAttractor(AAttractors* CameraAttractor)
+{
+	CurrentAttractors.Remove(CameraAttractor);
+}
+
+bool ABaseCharacter::HasCameraAttractor() const
+{
+	return CurrentAttractors.Num() > 0;
+}
+
 float ABaseCharacter::GetMaxHealth() const
 {
 	return HealthComponent->GetMaxHealth();

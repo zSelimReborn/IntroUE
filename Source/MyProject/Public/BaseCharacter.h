@@ -12,6 +12,7 @@ class ABaseKey;
 class IIInteractable;
 class UUserWidget;
 class AAttractors;
+class ACameraHighlight;
 
 UCLASS()
 class MYPROJECT_API ABaseCharacter : public ACharacter
@@ -26,11 +27,18 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Interact();
+	void EnableLookAtCameraHighlight();
+	void DisableLookAtCameraHighlight();
 	void ChangeSpellSlot1();
 	void ChangeSpellSlot2();
 	void ChangeSpellSlot3();
 
 	void DisplayHudWidget() const;
+
+	void CreateCameraHighlightWidget();
+	void DisplayCameraHighlightWidget() const;
+	void HideCameraHighlightWidget() const;
+	void CheckAndLookAtHighlightObject();
 
 	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
 
@@ -95,6 +103,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentManaPercentage() const;
+
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	void LookAtObject(const AActor*);
+	void RestoreDefaultView() const;
+	void SetCameraHighlight(ACameraHighlight*);
+	void RemoveCameraHighlight();
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category=Camera)
@@ -128,4 +142,16 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Transient)
 	TArray<AAttractors*> CurrentAttractors;
+
+	UPROPERTY(VisibleAnywhere, Transient)
+	TObjectPtr<ACameraHighlight> CurrentCameraHighlight;
+
+	UPROPERTY(VisibleAnywhere, Transient)
+	bool bShouldUseCameraHighlight = false;
+
+	UPROPERTY(EditAnywhere, Category="Camera Highlight")
+	TSubclassOf<UUserWidget> CameraHighlightWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> CameraHighlightWidget;
 };

@@ -13,6 +13,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "Actors/Spell.h"
+#include "Actors/Camera/CameraHighlight.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -42,6 +44,7 @@ void ABaseCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	DisplayHudWidget();
+	CreateCameraHighlightWidget();
 	KeyInventory.Empty();
 }
 
@@ -50,6 +53,28 @@ void ABaseCharacter::Interact()
 	if (InteractableOverlappingActor)
 	{
 		InteractableOverlappingActor->Interact(this);
+	}
+}
+
+void ABaseCharacter::EnableLookAtCameraHighlight()
+{
+	bShouldUseCameraHighlight = true;
+}
+
+void ABaseCharacter::DisableLookAtCameraHighlight()
+{
+	bShouldUseCameraHighlight = false;
+}
+
+void ABaseCharacter::CheckAndLookAtHighlightObject()
+{
+	if (CurrentCameraHighlight && bShouldUseCameraHighlight)
+	{
+		LookAtObject(CurrentCameraHighlight->GetTargetActor());
+	}
+	else
+	{
+		RestoreDefaultView();	
 	}
 }
 
@@ -78,11 +103,34 @@ void ABaseCharacter::DisplayHudWidget() const
 	}
 }
 
+void ABaseCharacter::CreateCameraHighlightWidget()
+{
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	CameraHighlightWidget = CreateWidget(PlayerController, CameraHighlightWidgetClass);
+}
+
+void ABaseCharacter::DisplayCameraHighlightWidget() const
+{
+	if (CameraHighlightWidget && !CameraHighlightWidget->IsInViewport())
+	{
+		CameraHighlightWidget->AddToViewport();
+	}
+}
+
+void ABaseCharacter::HideCameraHighlightWidget() const
+{
+	if (CameraHighlightWidget && CameraHighlightWidget->IsInViewport())
+	{
+		CameraHighlightWidget->RemoveFromViewport();
+	}
+}
+
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	CheckAndLookAtHighlightObject();
 }
 
 void ABaseCharacter::OnDeath(bool FellOutOfWorld)
@@ -163,6 +211,8 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Pressed, this, &ABaseCharacter::Interact);
 	PlayerInputComponent->BindAction("Cast", EInputEvent::IE_Pressed, this, &ABaseCharacter::Cast);
+	PlayerInputComponent->BindAction("Highlight", EInputEvent::IE_Pressed, this, &ABaseCharacter::EnableLookAtCameraHighlight);
+	PlayerInputComponent->BindAction("Highlight", EInputEvent::IE_Released, this, &ABaseCharacter::DisableLookAtCameraHighlight);
 
 	PlayerInputComponent->BindAction("SpellSlot1", EInputEvent::IE_Pressed, this, &ABaseCharacter::ChangeSpellSlot1);
 	PlayerInputComponent->BindAction("SpellSlot2", EInputEvent::IE_Pressed, this, &ABaseCharacter::ChangeSpellSlot2);
@@ -281,6 +331,51 @@ float ABaseCharacter::GetCurrentManaPercentage() const
 
 	const float Percentage = CurrentMana / MaxMana;
 	return Percentage;
+}
+
+void ABaseCharacter::LookAtObject(const AActor* OtherActor)
+{
+	if (CameraBoom && OtherActor)
+	{
+		const FVector DirectionToActor = OtherActor->GetActorLocation() - GetActorLocation();
+		const FRotator RotationToActor = DirectionToActor.Rotation();
+
+		CameraBoom->bInheritYaw = false;
+		CameraBoom->bUsePawnControlRotation = false;
+		const FLatentActionInfo ActionInfo{INDEX_NONE, INDEX_NONE, nullptr, this};
+
+		float OverTime = 0.f;
+		if (CurrentCameraHighlight)
+		{
+			OverTime = CurrentCameraHighlight->GetTimeToMoveCamera();
+		}
+		
+		UKismetSystemLibrary::MoveComponentTo(CameraBoom, FVector{0.f, 0.f, 0.f}, RotationToActor, true,
+		true, OverTime, false, EMoveComponentAction::Move, ActionInfo);
+	}
+}
+
+void ABaseCharacter::RestoreDefaultView() const
+{
+	if (CameraBoom)
+	{
+		CameraBoom->SetRelativeRotation(FRotator::ZeroRotator);
+		CameraBoom->bUsePawnControlRotation = true;
+		CameraBoom->bInheritYaw = true;
+	}
+}
+
+void ABaseCharacter::SetCameraHighlight(ACameraHighlight* CameraHighlight)
+{
+	CurrentCameraHighlight = CameraHighlight;
+	DisplayCameraHighlightWidget();
+}
+
+void ABaseCharacter::RemoveCameraHighlight()
+{
+	CurrentCameraHighlight = nullptr;
+	RestoreDefaultView();
+	HideCameraHighlightWidget();
 }
 
 void ABaseCharacter::FellOutOfWorld(const UDamageType& dmgType)

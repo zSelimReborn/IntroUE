@@ -43,6 +43,7 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CreateHudWidget();
 	DisplayHudWidget();
 	CreateCameraHighlightWidget();
 	KeyInventory.Empty();
@@ -103,13 +104,25 @@ void ABaseCharacter::ChangeSpellSlot3()
 	ChangeSpell(2);
 }
 
-void ABaseCharacter::DisplayHudWidget() const
+void ABaseCharacter::CreateHudWidget()
 {
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	UUserWidget* HudWidget = CreateWidget(PlayerController, HudWidgetClass);
-	if (HudWidget)
+	HudWidgetInstance = CreateWidget(PlayerController, HudWidgetClass);
+}
+
+void ABaseCharacter::DisplayHudWidget() const
+{
+	if (HudWidgetInstance && bShouldDisplayHudWidget)
 	{
-		HudWidget->AddToViewport();
+		HudWidgetInstance->AddToViewport();
+	}
+}
+
+void ABaseCharacter::HideHudWidget() const
+{
+	if (HudWidgetInstance)
+	{
+		HudWidgetInstance->RemoveFromViewport();
 	}
 }
 

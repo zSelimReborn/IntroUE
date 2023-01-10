@@ -94,7 +94,7 @@ FVector UDoorInteractionComponent::GetActorForwardVector() const
 bool UDoorInteractionComponent::CanOpenDoor() const
 {
 	// If no key configured, it's a door not locked
-	if (KeyToOpenName.IsEmpty())
+	if (KeyToOpenName.IsEmpty() || KeyToOpenName.Equals(TEXT("None")))
 	{
 		return true;
 	}

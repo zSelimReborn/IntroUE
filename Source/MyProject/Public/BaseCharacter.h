@@ -38,7 +38,7 @@ protected:
 	void ChangeSpellSlot2();
 	void ChangeSpellSlot3();
 
-	void DisplayHudWidget() const;
+	void CreateHudWidget();
 
 	void CreateCameraHighlightWidget();
 	void DisplayCameraHighlightWidget() const;
@@ -112,6 +112,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentManaPercentage() const;
 
+	UFUNCTION(BlueprintCallable)
+	void DisplayHudWidget() const;
+
+	UFUNCTION(BlueprintCallable)
+	void HideHudWidget() const;
+
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	void LookAtObject(const AActor*);
 	void RestoreDefaultView() const;
@@ -136,6 +142,12 @@ private:
 
 	UPROPERTY(EditAnywhere, NoClear)
 	TSubclassOf<UUserWidget> HudWidgetClass;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> HudWidgetInstance;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	bool bShouldDisplayHudWidget = true;
 
 	UPROPERTY(EditAnywhere, Category=Spell)
 	TArray<TSubclassOf<class ASpell>> SpellInventory;

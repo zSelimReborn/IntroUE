@@ -56,6 +56,16 @@ void ABaseCharacter::Interact()
 	}
 }
 
+void ABaseCharacter::OnStartInteract()
+{
+	OnPlayerInteractStart.Broadcast();
+}
+
+void ABaseCharacter::OnEndInteract()
+{
+	OnPlayerInteractEnd.Broadcast();
+}
+
 void ABaseCharacter::EnableLookAtCameraHighlight()
 {
 	bShouldUseCameraHighlight = true;
@@ -209,7 +219,9 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Pressed, this, &ABaseCharacter::Interact);
+	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Pressed, this, &ABaseCharacter::OnStartInteract);
+	PlayerInputComponent->BindAction("Interact", EInputEvent::IE_Released, this, &ABaseCharacter::OnEndInteract);
+	
 	PlayerInputComponent->BindAction("Cast", EInputEvent::IE_Pressed, this, &ABaseCharacter::Cast);
 	PlayerInputComponent->BindAction("Highlight", EInputEvent::IE_Pressed, this, &ABaseCharacter::EnableLookAtCameraHighlight);
 	PlayerInputComponent->BindAction("Highlight", EInputEvent::IE_Released, this, &ABaseCharacter::DisableLookAtCameraHighlight);

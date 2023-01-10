@@ -15,6 +15,8 @@ class UObjectiveComponent;
 class ABaseCharacter;
 class UWidgetComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInteractableDoorOpened);
+
 /**
  * 
  */
@@ -52,6 +54,9 @@ public:
 	virtual void Interact(APawn*) override;
 	virtual void ShowInteractWidget() override;
 	virtual void HideInteractWidget() override;
+
+	UPROPERTY(BlueprintAssignable, Category="Interaction")
+	FInteractableDoorOpened OnDoorOpened;
 	
 protected:
 	ABaseCharacter* GetPlayer();

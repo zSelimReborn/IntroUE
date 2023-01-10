@@ -14,6 +14,9 @@ class UUserWidget;
 class AAttractors;
 class ACameraHighlight;
 
+DECLARE_MULTICAST_DELEGATE(FPlayerInteractStart);
+DECLARE_MULTICAST_DELEGATE(FPlayerInteractEnd);
+
 UCLASS()
 class MYPROJECT_API ABaseCharacter : public ACharacter
 {
@@ -27,6 +30,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Interact();
+	void OnStartInteract();
+	void OnEndInteract();
 	void EnableLookAtCameraHighlight();
 	void DisableLookAtCameraHighlight();
 	void ChangeSpellSlot1();
@@ -69,6 +74,9 @@ public:
 
 	DECLARE_EVENT_OneParam(FBaseCharacter, FOnDeathPlayer, bool);
 	FOnDeathPlayer& OnDeathPlayer() { return OnDeathPlayerEvent; }
+
+	FPlayerInteractStart OnPlayerInteractStart;
+	FPlayerInteractEnd OnPlayerInteractEnd;
 
 	void SetInteractableOverlappingActor(IIInteractable* Actor);
 	void ResetInteractableOverlappingActor(IIInteractable* Actor);

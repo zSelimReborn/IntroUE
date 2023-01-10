@@ -114,6 +114,7 @@ bool AInteractableDoor::IsPickupKeyObjectiveInactive() const
 void AInteractableDoor::OnOpenDoor() const
 {
 	SetOpenDoorObjectiveCompleted();
+	OnDoorOpened.Broadcast();
 }
 
 FVector AInteractableDoor::GetMeshCenter() const

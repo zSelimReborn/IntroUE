@@ -10,7 +10,7 @@ UENUM()
 enum class ESpellType
 {
 	Blast		UMETA(DisplayName="Blast"),
-	Area		UMETA(DisplayName="Area")
+	Storm		UMETA(DisplayName="Storm")
 };
 
 UCLASS()

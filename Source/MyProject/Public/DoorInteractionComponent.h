@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
 #include "Curves/CurveFloat.h"
+#include "Components/InteractionComponent.h"
 #include "DoorInteractionComponent.generated.h"
 
 UENUM()
@@ -30,7 +30,7 @@ class AInteractableDoor;
 class ABaseKey;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class MYPROJECT_API UDoorInteractionComponent : public UActorComponent
+class MYPROJECT_API UDoorInteractionComponent : public UInteractionComponent
 {
 	GENERATED_BODY()
 
@@ -53,6 +53,8 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	virtual void InteractionStart() override;
 
 	UPROPERTY(EditAnywhere)
 	float DesiredYawRotation = 0.f;

@@ -58,6 +58,17 @@ void UDoorInteractionComponent::BeginPlay()
 	KeyToOpenName = GetNameSafe(KeyToOpen);
 }
 
+void UDoorInteractionComponent::InteractionStart()
+{
+	Super::InteractionStart();
+
+	if (InteractingActor)
+	{
+		ToggleDoor();
+		OnInteractionSuccess.Broadcast();
+	}
+}
+
 
 // Called every frame
 void UDoorInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

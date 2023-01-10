@@ -9,6 +9,8 @@
 class UStaticMeshComponent;
 class USphereComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPickupKey);
+
 UCLASS()
 class MYPROJECT_API ABaseKey : public AActor
 {
@@ -22,8 +24,17 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void HidePickupWidget();
+	void ShowPickupWidget();
+
 	UFUNCTION()
-	void OnColliderOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnColliderOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnColliderOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void AfterPickupKey();
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -32,7 +43,16 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USphereComponent> ColliderComponent = nullptr;
 
+	UPROPERTY(VisibleAnywhere, NoClear, Category="Pickup Item")
+	TObjectPtr<class UWidgetComponent> PickupWidgetComponent;
+
+	UPROPERTY(VisibleAnywhere, NoClear, Category="Pickup Item")
+	TObjectPtr<class UPickupItemComponent> PickupItemComponent;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(BlueprintAssignable)
+	FPickupKey OnPickupKey;
 };

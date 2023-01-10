@@ -35,10 +35,10 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
+	FInteractionSuccess OnInteractionSuccess;
 protected:
 	UPROPERTY(Transient)
 	TObjectPtr<AActor> InteractingActor;
 
-	FInteractionSuccess OnInteractionSuccess;
 };

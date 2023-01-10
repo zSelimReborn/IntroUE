@@ -3,8 +3,10 @@
 #include "BaseKey.h"
 
 #include "BaseCharacter.h"
+#include "Components/PickupItemComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 ABaseKey::ABaseKey()
@@ -20,6 +22,10 @@ ABaseKey::ABaseKey()
 	ColliderComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	ColliderComponent->SetupAttachment(MainMeshComponent);
 
+	PickupWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Pickup Widget Component"));
+	PickupWidgetComponent->SetupAttachment(MainMeshComponent);
+
+	PickupItemComponent = CreateDefaultSubobject<UPickupItemComponent>(TEXT("Pickup Item Component"));
 }
 
 // Called when the game starts or when spawned
@@ -27,19 +33,46 @@ void ABaseKey::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ColliderComponent->OnComponentBeginOverlap.AddDynamic(this, &ABaseKey::OnColliderOverlap);
+	HidePickupWidget();
+	ColliderComponent->OnComponentBeginOverlap.AddDynamic(this, &ABaseKey::OnColliderOverlapStart);
+	ColliderComponent->OnComponentEndOverlap.AddDynamic(this, &ABaseKey::OnColliderOverlapEnd);
+	PickupItemComponent->OnInteractionSuccess.AddDynamic(this, &ABaseKey::AfterPickupKey);
 }
 
-void ABaseKey::OnColliderOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void ABaseKey::HidePickupWidget()
+{
+	if (PickupWidgetComponent)
+	{
+		PickupWidgetComponent->SetVisibility(false);
+	}
+}
+
+void ABaseKey::ShowPickupWidget()
+{
+	if (PickupWidgetComponent)
+	{
+		PickupWidgetComponent->SetVisibility(true);
+	}
+}
+
+void ABaseKey::OnColliderOverlapStart(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ABaseCharacter* PlayerCasted = Cast<ABaseCharacter>(OtherActor);
-	// It's ABaseCharacter
-	if (PlayerCasted != nullptr)
+	if (Cast<ABaseCharacter>(OtherActor) != nullptr)
 	{
-		PlayerCasted->AddKeyToInventory(GetNameSafe(this));
-		Destroy();
+		ShowPickupWidget();
 	}
+}
+
+void ABaseKey::OnColliderOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	HidePickupWidget();
+}
+
+void ABaseKey::AfterPickupKey()
+{
+	OnPickupKey.Broadcast();
 }
 
 // Called every frame

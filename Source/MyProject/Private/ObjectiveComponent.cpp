@@ -12,6 +12,7 @@ UObjectiveComponent::UObjectiveComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
+	bWantsInitializeComponent = true;
 	// ...
 }
 
@@ -20,12 +21,6 @@ UObjectiveComponent::UObjectiveComponent()
 void UObjectiveComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	ObjectiveWorldSubsystem = GetWorld()->GetSubsystem<UObjectiveWorldSubsystem>();
-
-	if (ObjectiveWorldSubsystem)
-	{
-		ObjectiveWorldSubsystem->AddObjective(this);
-	}
 }
 
 void UObjectiveComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -35,6 +30,18 @@ void UObjectiveComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	if (ObjectiveWorldSubsystem)
 	{
 		ObjectiveWorldSubsystem->RemoveObjective(this);
+	}
+}
+
+void UObjectiveComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+
+	ObjectiveWorldSubsystem = GetWorld()->GetSubsystem<UObjectiveWorldSubsystem>();
+
+	if (ObjectiveWorldSubsystem)
+	{
+		ObjectiveWorldSubsystem->AddObjective(this);
 	}
 }
 

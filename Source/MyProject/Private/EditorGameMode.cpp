@@ -15,13 +15,26 @@ void AEditorGameMode::StartPlay()
 	UObjectiveWorldSubsystem* ObjectiveWorldSubsystem = GetWorld()->GetSubsystem<UObjectiveWorldSubsystem>();
 	if (ObjectiveWorldSubsystem)
 	{
-		ObjectiveWorldSubsystem->CreateObjectiveWidget(ObjectiveWidgetClass);
-		ObjectiveWorldSubsystem->DisplayObjectiveWidget();
+		ObjectiveWorldSubsystem->OnAllObjectivesCompleted.AddDynamic(this, &AEditorGameMode::OnQuestCompleted);
 	}
-
+	
 	UCheckpointSubsystem* CheckpointSubsystem = GetGameInstance()->GetSubsystem<UCheckpointSubsystem>();
 	if (CheckpointSubsystem)
 	{
 		CheckpointSubsystem->LoadCheckpoints();
+	}
+}
+
+void AEditorGameMode::OnQuestCompleted()
+{
+	GetWorldTimerManager().SetTimer(RestartLevelHandler, this, &AEditorGameMode::FireRestartLevel, RestartLevelTimeAfterQuestCompleted, false);
+}
+
+void AEditorGameMode::FireRestartLevel() const
+{
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PlayerController)
+	{
+		PlayerController->RestartLevel();
 	}
 }

@@ -3,24 +3,11 @@
 
 #include "ObjectiveWorldSubsystem.h"
 
+#include "EditorGameMode.h"
 #include "ObjectiveComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
-
-void UObjectiveWorldSubsystem::CreateObjectiveWidget(TSubclassOf<UUserWidget> ObjectiveWidgetClass)
-{
-	if (ObjectiveWidget == nullptr)
-	{
-		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-		ObjectiveWidget = CreateWidget(PlayerController, ObjectiveWidgetClass);
-	}
-}
-
-void UObjectiveWorldSubsystem::DisplayObjectiveWidget()
-{
-	ensureMsgf(ObjectiveWidget, TEXT("UObjectiveWorldSubsystem::DisplayObjectiveWidget ObjectiveWidget is nullptr."));
-	ObjectiveWidget->AddToViewport();
-}
+#include "UI/Widgets/ObjectiveHud.h"
 
 void UObjectiveWorldSubsystem::OnObjectiveCompleted()
 {
@@ -49,27 +36,53 @@ void UObjectiveWorldSubsystem::OnObjectiveStateChanged(UObjectiveComponent* Obje
 	{
 		OnObjectiveCompleted();
 	}
-	
-	DisplayObjectiveWidget();
+
+	if (HasCompletedAllObjectives())
+	{
+		ShowQuestCompletedWidget();
+		OnAllObjectivesCompleted.Broadcast();
+	}
+	ShowCurrentObjectiveWidget();
 }
 
 FString UObjectiveWorldSubsystem::GetCurrentObjectiveDescription()
 {
 	const UObjectiveComponent* ActiveObjective = GetCurrentObjective();
-	FString ObjectiveAsString = (ActiveObjective)? ActiveObjective->GetDescription() + " New!" : "";
-
-	if (Objectives.IsValidIndex(CurrentObjectiveIndex - 1))
-	{
-		const UObjectiveComponent* LastObjective = Objectives[CurrentObjectiveIndex - 1];
-		if (LastObjective->IsObjectiveCompleted())
-		{
-			ObjectiveAsString += "\n ";
-			ObjectiveAsString += LastObjective->GetDescription();
-			ObjectiveAsString += " Completed.";
-		}
-	}
+	FString ObjectiveAsString = (ActiveObjective)? ActiveObjective->GetDescription() : "";
 	
 	return (!ObjectiveAsString.IsEmpty())? ObjectiveAsString : TEXT("N/A");
+}
+
+int8 UObjectiveWorldSubsystem::GetNumObjectivesCompleted() const
+{
+	int8 NumObjectivesCompleted = 0;
+	for (const auto Objective : Objectives)
+	{
+		if (Objective->IsObjectiveCompleted())
+		{
+			NumObjectivesCompleted++;
+		}
+	}
+
+	return NumObjectivesCompleted;
+}
+
+bool UObjectiveWorldSubsystem::HasObjectivesActive() const
+{
+	for (const auto Objective : Objectives)
+	{
+		if (Objective->IsObjectiveActive())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UObjectiveWorldSubsystem::HasCompletedAllObjectives() const
+{
+	return GetNumObjectivesCompleted() >= Objectives.Num();
 }
 
 UObjectiveComponent* UObjectiveWorldSubsystem::GetCurrentObjective()
@@ -80,4 +93,67 @@ UObjectiveComponent* UObjectiveWorldSubsystem::GetCurrentObjective()
 	}
 
 	return nullptr;
+}
+
+void UObjectiveWorldSubsystem::OnMapStart()
+{
+	CreateWidgetInstances();
+	ShowCurrentObjectiveWidget();
+}
+
+void UObjectiveWorldSubsystem::CreateWidgetInstances()
+{
+	AEditorGameMode* GameMode = Cast<AEditorGameMode>(GetWorld()->GetAuthGameMode());
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (GameMode && PlayerController)
+	{
+		ObjectiveWidget = CreateWidget<UObjectiveHud>(PlayerController, GameMode->ObjectiveWidgetClass);
+		QuestCompletedWidgetInstance = CreateWidget<UUserWidget>(PlayerController, GameMode->QuestCompletedWidgetClass);
+	}
+}
+
+void UObjectiveWorldSubsystem::ShowCurrentObjectiveWidget()
+{
+	if (ObjectiveWidget && !ObjectiveWidget->IsInViewport())
+	{
+		ObjectiveWidget->AddToViewport();
+	}
+
+	if (ObjectiveWidget)
+	{
+		if (!HasCompletedAllObjectives())
+		{
+			ObjectiveWidget->UpdateCurrentObjectiveText(GetCurrentObjectiveDescription());
+		}
+		ObjectiveWidget->UpdateObjectiveCount(GetNumObjectivesCompleted(), Objectives.Num());
+	}
+
+	if (Objectives.Num() <= 0)
+	{
+		HideCurrentObjectiveWidget();
+	}
+}
+
+void UObjectiveWorldSubsystem::HideCurrentObjectiveWidget()
+{
+	if (ObjectiveWidget && ObjectiveWidget->IsInViewport())
+	{
+		ObjectiveWidget->RemoveFromViewport();
+	}
+}
+
+void UObjectiveWorldSubsystem::ShowQuestCompletedWidget()
+{
+	if (QuestCompletedWidgetInstance && !QuestCompletedWidgetInstance->IsInViewport())
+	{
+		QuestCompletedWidgetInstance->AddToViewport();
+	}
+}
+
+void UObjectiveWorldSubsystem::HideQuestCompletedWidget()
+{
+	if (QuestCompletedWidgetInstance && QuestCompletedWidgetInstance->IsInViewport())
+	{
+		QuestCompletedWidgetInstance->RemoveFromViewport();
+	}
 }

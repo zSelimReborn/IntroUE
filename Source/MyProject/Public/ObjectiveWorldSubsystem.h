@@ -8,6 +8,11 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "ObjectiveWorldSubsystem.generated.h"
 
+class UObjectiveHud;
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FAllObjectivesCompleted);
+
 /**
  * 
  */
@@ -17,9 +22,6 @@ class MYPROJECT_API UObjectiveWorldSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 
 public:
-	void CreateObjectiveWidget(TSubclassOf<UUserWidget>);
-	void DisplayObjectiveWidget();
-
 	void OnObjectiveCompleted();
 
 	UFUNCTION(BlueprintCallable)
@@ -33,11 +35,33 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FString GetCurrentObjectiveDescription();
 
+	int8 GetNumObjectivesCompleted() const;
+
+	bool HasObjectivesActive() const;
+	bool HasCompletedAllObjectives() const;
+
 	UObjectiveComponent* GetCurrentObjective();
+
+	UFUNCTION(BlueprintCallable)
+	void OnMapStart();
+
+	FAllObjectivesCompleted OnAllObjectivesCompleted;
+	
+protected:
+	virtual void CreateWidgetInstances();
+	
+	virtual void ShowCurrentObjectiveWidget();
+	virtual void HideCurrentObjectiveWidget();
+
+	virtual void ShowQuestCompletedWidget();
+	virtual void HideQuestCompletedWidget();
 	
 protected:
 	UPROPERTY(Transient)
-	UUserWidget* ObjectiveWidget;
+	TObjectPtr<UObjectiveHud> ObjectiveWidget;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> QuestCompletedWidgetInstance;
 
 	UPROPERTY(Transient)
 	TArray<UObjectiveComponent*> Objectives;

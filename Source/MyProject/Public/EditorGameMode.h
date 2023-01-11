@@ -18,8 +18,22 @@ class MYPROJECT_API AEditorGameMode : public AGameModeBase
 
 public:
 	virtual void StartPlay() override;
-	
+
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	UFUNCTION()
+	virtual void OnQuestCompleted();
+
+	void FireRestartLevel() const;
+	
+public:
+	UPROPERTY(EditDefaultsOnly, Category="Objective Widgets")
 	TSubclassOf<UUserWidget> ObjectiveWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category="Objective Widgets")
+	TSubclassOf<UUserWidget> QuestCompletedWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	int8 RestartLevelTimeAfterQuestCompleted = 5.f;
+	
+	FTimerHandle RestartLevelHandler;
 };
